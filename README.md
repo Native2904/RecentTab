@@ -3,7 +3,8 @@
 A Total Commander WFX (File System) plugin that shows recently modified
 files as a virtual panel - similar to macOS Finder's "Recents" view.
 
-Author: Björn ([Native2904](https://github.com/Native2904))
+https://github.com/Native2904/RecentTab/blob/401f106849b2704410123273c37a39fb2bbb4be2/2026-08-03_153508.png
+
 
 ## What it can do
 
@@ -81,19 +82,6 @@ Configuration → Options → Plugins → File system plugins (WFX).
   reliably record *which process* touched a file, only *that* it
   changed, so this is a hard platform limit rather than something a
   future update could add.
-
-## Building from source
-
-MinGW-w64 required (`build_debug.bat` expects `C:\mingw64`, with an
-optional `mingw32` subfolder for a 32-bit build alongside the 64-bit
-one). After a successful build, a `release` folder and a ready-to-ship
-`RecentTab.zip` are assembled automatically next to the script. See
-`TESTING.md` for what to check afterward.
-
-## License
-
-MIT - matching this author's other Total Commander plugins
-([XYTags](https://github.com/Native2904), DescriptEdit).
 
 ---
 
@@ -178,3 +166,18 @@ entries: recording status, history, lifetime usage (survives Reset),
 watched folders, config/state paths, monthly panel-open counts. Sizes
 itself to its actual content rather than a fixed size - grows for long
 paths, scrolls for long lists.
+
+## Building from source
+
+MinGW-w64 required (`build_debug.bat` expects `C:\mingw64`, with an
+optional `mingw32` subfolder for a 32-bit build alongside the 64-bit
+one). After a successful build, a `release` folder and a ready-to-ship
+`RecentTab.zip` are assembled automatically next to the script. See
+`TESTING.md` for what to check afterward.
+
+## License
+
+MIT - matching this author's other Total Commander plugins
+([XYTags](https://github.com/Native2904), DescriptEdit).
+
+Author: Björn ([Native2904](https://github.com/Native2904))
