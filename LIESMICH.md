@@ -8,80 +8,51 @@ Ansicht des macOS Finders.
 
 ## Was es kann
 
-Öffne `\\RecentTab\` in Total Commander und bekomme eine flache,
-chronologische Liste aller Dateien, die du tatsächlich kürzlich
-angefasst hast, zusammengetragen über dein ganzes System hinweg -
-angetrieben von einer echten [Everything](https://www.voidtools.com)-
-Datumsbereichsabfrage, keinem Hintergrunddienst und keinem langsamen
-manuellen Scan. Jede Datei in der Liste ist die echte Datei an ihrem
-echten Ort - öffnen, bearbeiten, kopieren, verschieben, löschen, direkt
-aus der Liste heraus, nichts davon ist virtuell oder zwischengelagert.
-Die Aufzeichnung selbst ist ein simpler Ein/Aus-Schalter, den du mit
-der Maus direkt im Panel steuerst, mit eigenem Live-Laufzeit- und
-Verlaufszähler.
+`\\RecentTab\` in Total Commander öffnen zeigt eine flache, chronologische
+Liste aller kürzlich geänderten Dateien, systemweit zusammengetragen -
+über eine direkte IPC-Verbindung zu [Everything](https://www.voidtools.com)
+(voidtools), kein Hintergrunddienst, kein manueller Scan. Jede Datei in
+der Liste ist die echte Datei an ihrem echten Ort - öffnen, bearbeiten,
+kopieren, verschieben, löschen wirkt direkt auf die echte Datei, nichts
+davon ist virtuell oder zwischengespeichert. Die Aufzeichnung selbst ist
+ein Ein/Aus-Schalter, mit der Maus im Panel bedienbar, mit eigenem
+Laufzeit-Zähler.
 
-Wo hingeschaut wird, entscheidest komplett du. Von Haus aus werden die
-sechs üblichen Verdächtigen beobachtet (Desktop, Dokumente, Downloads,
-Bilder, Videos, Musik), inklusive korrekter Erkennung von
-OneDrive-Umleitungen, falls vorhanden. Willst du stattdessen etwas
-Engeres oder komplett anderes - nur dein Projekt-Laufwerk zum
-Beispiel? Definier deine eigene Ordner-Whitelist, und blackliste
-optional bestimmte Unterpfade innerhalb davon (ein `node_modules`-
-Ordner, ein Backup-Cache, was auch immer deine Ergebnisse zumüllt) -
-oder behalte die sechs Standardordner *und* ergänze deine eigenen
-obendrauf, ganz wie du willst. Cloud-Sync-Platzhalterdateien, die noch
-gar nicht wirklich heruntergeladen wurden (OneDrive Files On-Demand
-und Ähnliches), werden automatisch rausgefiltert, damit sie die Liste
-nicht mit Dingen zumüllen, die auf diesem Rechner nie wirklich
-"benutzt" wurden.
+Der Zustand liegt in einer eigenen Datei neben dem Plugin, nicht im
+Arbeitsspeicher. Tab versehentlich geschlossen, Total Commander beendet,
+Neustart des Rechners - macht keinen Unterschied. Beim nächsten Öffnen
+von `\\RecentTab\` ist der Verlauf unverändert vorhanden.
 
-Alles andere ist darauf ausgelegt, dir nicht im Weg zu stehen: eine
-eigene `RealPath`-Spalte zeigt immer den echten Ort einer Datei, auch
-wenn die Liste selbst über viele Ordner hinweg reicht, die Sortierung
-ist standardmäßig neueste-zuerst (oder älteste-zuerst, deine
-Entscheidung), und ein themenfarbiges Alt+Enter-Statistikfenster - vier
-eingebaute Farbpaletten, passt sich in der Größe an das an, was es
-tatsächlich zeigen muss - gibt dir das komplette Bild (Verlauf,
-Lifetime-Statistik, beobachtete Ordner, Konfigurationspfade), ohne das
-Panel zu verlassen. Die gesamte Oberfläche ist in mehr als einer
-Sprache verfügbar und leicht um eigene Übersetzungen zu erweitern.
+Welche Ordner beobachtet werden, ist konfigurierbar. Standardmäßig die
+sechs üblichen (Desktop, Dokumente, Downloads, Bilder, Videos, Musik),
+inklusive korrekter OneDrive-Umleitungserkennung. Für eine engere oder
+komplett andere Auswahl (z. B. nur ein Projektlaufwerk) lässt sich eine
+eigene Ordner-Whitelist definieren, mit optionaler Blacklist für
+bestimmte Unterpfade darin (`node_modules`, ein Backup-Cache o. Ä.) -
+oder die sechs Standardordner behalten und eigene zusätzlich ergänzen.
+Cloud-Sync-Platzhalterdateien, die noch nicht wirklich heruntergeladen
+wurden (OneDrive Files On-Demand u. Ä.), werden automatisch
+herausgefiltert.
 
-## Voraussetzungen
+Eine eigene `RealPath`-Spalte zeigt immer den echten Ort einer Datei,
+auch wenn die Liste selbst über viele Ordner hinweg reicht. Sortierung
+standardmäßig neueste zuerst (umstellbar). Alt+Enter öffnet ein
+themenfarbiges Statistikfenster - vier eingebaute Farbpaletten, passt
+seine Größe an den tatsächlichen Inhalt an - mit einer live
+mitlaufenden Uhr im Fensterrahmen und einer vollständigen Übersicht
+über den aktuellen Zustand: geladenes Theme, geladene Sprache, ob
+Everything gerade tatsächlich verbunden ist und welche Version läuft,
+Anzahl der Abfragen in dieser Sitzung, komplette Aufzeichnungshistorie,
+und wo jede vom Plugin verwendete Datei tatsächlich liegt. Alles direkt
+im Fenster sichtbar, nichts muss über eine separate Einstellungsseite
+gesucht werden.
 
-- Windows 7 oder neuer, Total Commander 32-Bit oder 64-Bit
-- [Everything](https://www.voidtools.com) installiert und laufend, mit
-  einem Index, der die Laufwerke deiner beobachteten Ordner abdeckt
-- `es.exe`, Everythings Kommandozeilen-Client (liegt normalerweise
-  schon in Everythings eigenem Installationsordner)
-
-## Installation
-
-Doppelklick auf `RecentTab.zip` direkt in Total Commander - es erkennt
-den Installer darin und bietet die automatische Installation an, ein
-einziger Klick. (Braucht Konfigurieren → Einstellungen → Packer →
-"Archive wie Verzeichnisse behandeln" aktiviert, Standardeinstellung.
-Falls das Zip im selben Panel schon mal zum Reingucken geöffnet wurde,
-einmal ein anderes Archiv öffnen/schließen, dann nochmal
-doppelklicken.)
-
-Geht auch: entpacken, oder den `release`-Ordner aus einem
-Quellcode-Build nehmen, und dort auf `pluginst.inf` doppelklicken -
-oder die .wfx manuell über Konfigurieren → Einstellungen → Plugins →
-Dateisystem-Plugins (WFX) hinzufügen.
-
-## Dateien in diesem Paket
-
-- `RecentTab.wfx` / `RecentTab.wfx64` - das Plugin (TC wählt automatisch
-  die passende, falls beide vorhanden sind)
-- `RecentTab.ini`, `RecentTab_lang.ini` - Konfiguration und
-  Oberflächentexte; **müssen im selben Ordner wie die Plugin-Datei
-  liegen**, da sie relativ zum eigenen Speicherort gesucht werden,
-  nicht in TCs Konfigurationsordner
-- `Color_ini_example.ini` - eine Vorlage zum Hinzufügen einer weiteren
-  Sprache
-- `RecentTab_state.json` - wird beim ersten Gebrauch automatisch
-  angelegt, nicht Teil dieses Pakets; merkt sich deine
-  Aufzeichnungshistorie
+Die Verbindung zu Everything läuft über dessen eigenes IPC-Protokoll,
+direkt - kein Subprozess pro Abfrage, keine Kommandozeile involviert.
+Spürbar schneller als der frühere Ansatz dieses Projekts. Der
+Alt+Enter-Dialog zeigt klar an, ob diese Verbindung gerade steht. Die
+Oberfläche selbst liegt in mehr als einer Sprache vor und lässt sich um
+eigene Übersetzungen erweitern.
 
 ## Bekannte Einschränkungen
 
@@ -90,10 +61,10 @@ Dateisystem-Plugins (WFX) hinzufügen.
   Plugin selbst.
 - Erfasst nur tatsächlich geänderte oder neu angelegte Dateien - nicht
   Dateien, die nur geöffnet/angesehen, aber nicht verändert wurden.
-  Windows selbst speichert grundsätzlich nicht zuverlässig, *welcher
-  Prozess* eine Datei angefasst hat, nur *dass* sie sich geändert hat -
-  das ist also eine harte Plattformgrenze, kein Punkt, den ein
-  zukünftiges Update noch nachrüsten könnte.
+  Windows speichert grundsätzlich nicht zuverlässig, *welcher Prozess*
+  eine Datei angefasst hat, nur *dass* sie sich geändert hat - eine
+  harte Plattformgrenze, kein Punkt für ein zukünftiges Update.
+- 
 
 ---
 
@@ -110,7 +81,6 @@ SortDescending=1     ; 0 = älteste zuerst statt neueste zuerst
 Language=eng         ; eng (Standard) / deu / passt zu einer Sektion in RecentTab_lang.ini
 DebugLogging=1       ; 0 = RecentTab_debug.log nicht mehr schreiben (echte Kosten pro Aufruf, solange an)
 IncludeDefaultFolders=0  ; 1 = eigene [Watched:...]-Blöcke zu den sechs Standardordnern hinzufügen statt sie zu ersetzen
-;EsExePath=C:\Everything\es.exe   ; nur nötig, falls es.exe nicht automatisch gefunden wird
 
 [Theme]
 Name=gruvbox         ; gruvbox (Standard) / dracula / monokai / everforest / custom
@@ -133,12 +103,12 @@ Path=%USERPROFILE%\Desktop
 ```
 
 `Exclude=` nimmt mit Semikolon getrennte Unterpfad-Fragmente, die
-innerhalb des `Path=` dieses Blocks übersprungen werden sollen - deine
+innerhalb des `Path=` dieses Blocks übersprungen werden sollen - die
 Blacklist pro Ordner. Mit `IncludeDefaultFolders=1` werden eigene
 Blöcke zu den sechs Standardordnern hinzugefügt statt sie zu ersetzen
-(definierst du einen der sechs selbst neu, z. B. mit eigenem
-`Exclude=`, wird deine Version statt des einfachen Standards
-verwendet - er taucht nicht doppelt auf).
+(wird einer der sechs selbst neu definiert, z. B. mit eigenem
+`Exclude=`, wird diese Version statt des einfachen Standards
+verwendet - kein doppelter Eintrag).
 
 ### Farbschemata
 
@@ -178,11 +148,51 @@ die der Datei hinzugefügt wurde - eine Vorlage zum Herauskopieren einer
 ### Der Alt+Enter-Dialog
 
 Öffnet von jedem der drei Pseudo-Einträge aus ein themenfarbiges,
-schreibgeschütztes Statistikfenster: Aufzeichnungsstatus, Verlauf,
-Lifetime-Nutzung (übersteht Reset), beobachtete Ordner,
-Konfigurations-/Zustandspfade, monatliche Panel-Öffnungen. Passt seine
-Größe an den tatsächlichen Inhalt an statt eine feste Größe zu
+schreibgeschütztes Statistikfenster: Aufzeichnungsstatus mit live
+mitlaufender Uhr im Fensterrahmen, geladenes Theme und geladene
+Sprache, vollständige Aufzeichnungshistorie, Lifetime-Nutzung
+(übersteht Reset), ob Everythings IPC-Verbindung gerade steht und
+welche Version läuft, beobachtete Ordner (markiert, falls einer auf
+der Platte gar nicht existiert), und Config-/State-Dateipfade. Passt
+seine Größe an den tatsächlichen Inhalt an statt eine feste Größe zu
 verwenden - wächst bei langen Pfaden, scrollt bei langen Listen.
+
+## Voraussetzungen
+
+- Windows 7 oder neuer, Total Commander 32-Bit oder 64-Bit
+- [Everything](https://www.voidtools.com) installiert und laufend -
+  das Plugin verbindet sich direkt über dessen eigenes IPC-Protokoll,
+  kein zusätzlicher Download oder Einrichtungsschritt nötig außer
+  Everything selbst im Hintergrund laufen zu lassen
+
+## Dateien in diesem Paket
+
+- `RecentTab.wfx` / `RecentTab.wfx64` - das Plugin (TC wählt automatisch
+  die passende, falls beide vorhanden sind)
+- `RecentTab.ini`, `RecentTab_lang.ini` - Konfiguration und
+  Oberflächentexte; müssen im selben Ordner wie die Plugin-Datei
+  liegen, da sie relativ zum eigenen Speicherort gesucht werden, nicht
+  in TCs Konfigurationsordner
+- `Color_ini_example.ini` - eine Vorlage zum Hinzufügen einer weiteren
+  Sprache
+- `RecentTab_state.json` - wird beim ersten Gebrauch automatisch
+  angelegt, nicht Teil dieses Pakets; merkt sich die
+  Aufzeichnungshistorie
+
+## Installation
+
+Doppelklick auf `RecentTab.zip` direkt in Total Commander - erkennt
+den Installer darin, bietet die automatische Installation an, ein
+Klick. (Voraussetzung: Konfigurieren → Einstellungen → Packer →
+"Archive wie Verzeichnisse behandeln" aktiviert, Standardeinstellung.
+Falls das Zip im selben Panel schon mal zum Reingucken geöffnet wurde,
+einmal ein anderes Archiv öffnen/schließen, dann nochmal
+doppelklicken.)
+
+Alternativ: entpacken, oder den `release`-Ordner aus einem
+Quellcode-Build nehmen, dort auf `pluginst.inf` doppelklicken - oder
+die .wfx manuell über Konfigurieren → Einstellungen → Plugins →
+Dateisystem-Plugins (WFX) hinzufügen.
 
 ## Aus dem Quellcode bauen
 
@@ -196,6 +206,6 @@ prüfen ist.
 ## Lizenz
 
 MIT - passend zu den anderen Total-Commander-Plugins dieses Autors
-([XYTags](https://github.com/Native2904), DescriptEdit).
+([XYTags](https://github.com/Native2904), [DescriptEdit](https://github.com/Native2904)).
 
 Autor: Björn ([Native2904](https://github.com/Native2904))
