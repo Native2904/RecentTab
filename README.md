@@ -68,7 +68,6 @@ to translate further if you want to add your own.
   reliably record *which process* touched a file, only *that* it
   changed, so this is a hard platform limit rather than something a
   future update could add.
-- 
 
 ---
 
