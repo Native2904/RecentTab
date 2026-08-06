@@ -15,7 +15,11 @@ service or a slow manual scan. Every file in the list is the real thing
 at its real location - open it, edit it, copy it, move it, delete it,
 right from the list, nothing virtual or staged. Recording itself is a
 simple on/off switch you control from the mouse, right in the panel,
-with its own live runtime counter.
+with its own live runtime counter. The panel itself stays down to two
+entries at the top - `! REC` for that switch, and `! menu` next to it
+for everything else (reset, refresh, and the search below) - so the
+list of actual files never has to compete with a row of buttons for
+space.
 
 Close the tab, close Total Commander entirely, restart your machine -
 doesn't matter. Your recording history lives in its own file next to
@@ -68,6 +72,10 @@ to translate further if you want to add your own.
   reliably record *which process* touched a file, only *that* it
   changed, so this is a hard platform limit rather than something a
   future update could add.
+- A file changed in the last second or two, while recording is still
+  actively running, can occasionally take one extra refresh to show up
+  - Everything's own live index needs a brief moment to catch up.
+  Pausing (or waiting a little longer) always resolves it.
 
 ---
 
@@ -83,9 +91,14 @@ SortDescending=1     ; 0 = oldest-first instead of newest-first
 Language=eng         ; eng (default) / deu / matches a section in RecentTab_lang.ini
 DebugLogging=1       ; 0 = stop writing RecentTab_debug.log (real per-call I/O cost while on)
 IncludeDefaultFolders=0  ; 1 = add your [Watched:...] blocks to the six defaults instead of replacing them
+RootButtons=          ; bring Reset;Refresh;Search to the root, instead of just inside "! menu"
+UseSearch=1            ; 0 = hide the search entirely, no way to reach it
+ShowLiveClock=1        ; 0 = stop the Alt+Enter title bar clock from ticking
+NoColors=0             ; 1 = plain system colors everywhere instead of any theme
 
 [Theme]
-Name=gruvbox         ; gruvbox (default) / dracula / monokai / everforest / custom
+Name=basic            ; basic (default) / gruvbox / everforest / solarized / custom
+Mode=dark             ; dark (default) / light
 ```
 
 ### Choosing which folders to watch (whitelist) and what to skip inside them (blacklist)
@@ -110,26 +123,70 @@ defaults instead of replacing them (redefine one of the six yourself,
 e.g. with your own `Exclude=`, and your version is used instead of the
 plain default - it won't appear twice).
 
+### Filtering by file type
+
+`OnlyExtensions=` is global (applies across all watched folders at
+once):
+
+```ini
+[Settings]
+;OnlyExtensions=docx;pdf;jpg
+```
+
+Accepts `exe`, `*.exe`, or `.exe` for each entry - however you
+naturally type it. If set at all, it takes absolute priority - only
+files matching one of those show up, overriding every
+`ExcludeExtensions=` (global or per-folder) entirely while it's active.
+
+`ExcludeExtensions=` itself lives per watched folder instead - a
+single global exclude list couldn't tell two differently-purposed
+folders apart:
+
+```ini
+[Watched:Projects]
+Path=D:\Projects
+ExcludeExtensions=exe;dll
+```
+
 ### Color themes
 
-Four built-in presets - `gruvbox` (default), `dracula`, `monokai`,
-`everforest`. Or set `Name=custom` and supply your own:
+Four built-in preset families - `basic` (default), `gruvbox`,
+`everforest`, `solarized` - each available in both a dark and light
+variant via `Mode=`:
+
+```ini
+[Theme]
+Name=basic
+Mode=dark             ; dark (default) / light
+```
+
+(Dracula and Monokai aren't offered as presets here - neither has an
+official light counterpart to pair with the other three; use `custom`
+below for a Dracula/Monokai-like look instead.) Or set `Name=custom`
+and supply your own:
 
 ```ini
 [Theme]
 Name=custom
-Background=#282828
-Foreground=#ebdbb2
-Heading=#d3869b
-Green=#b8bb26
-Accent2=#8ec07c
-Yellow=#fabd2f
-Accent4=#fe8019
-Muted=#928374
+Background=#1c1c1c
+Foreground=#ebebeb
+Heading=#b98eff
+Green=#7cc576
+Accent2=#5aa9e6
+Yellow=#e8c24a
+Accent4=#e8730a
+Muted=#8a8a8a
 ```
 
-Any color left blank falls back to the matching gruvbox value, so a
+Any color left blank falls back to the matching basic value, so a
 partial custom theme never looks broken.
+
+`NoColors=1` in `[Settings]` overrides every theme above entirely -
+plain system colors instead, everywhere (Alt+Enter dialog, search
+window, and Menu.exe once it exists). Every role that carries meaning
+through color also says so in its own text (warnings spell out
+"WARNING:", for instance), so nothing becomes unreadable with colors
+off - just less visually distinct at a glance.
 
 ### Language
 
@@ -144,16 +201,112 @@ falls back to English automatically.
 to the file - a template to copy a `[xyz]` section from, not loaded
 automatically.
 
+### Extra columns
+
+Five optional columns, each off by default - turn on only the ones you
+actually want, then add them to the panel via Total Commander's own
+Shift+F1 "Configure custom columns":
+
+```ini
+[Settings]
+;ShowChangeType=0
+;ShowRelativeTime=0
+;ShowSourceFolder=0
+;ShowSession=0
+;ShowOpened=0
+```
+
+![SourceFolder, RelativeTime and Session columns in the panel](screenshots/extra-columns.png)
+
+**`ShowChangeType`** - the plugin already decides internally whether a
+file's *modification* or its *creation* is what actually justified
+showing it (see the note on `dm:`/`dc:` above - handles the archive
+case where an old file gets extracted with its original modified date
+intact, but is brand new *here*). This column just makes that existing
+decision visible ("Changed" / "New") instead of keeping it purely
+internal.
+
+**`ShowRelativeTime`** - a plain date takes a moment to parse at a
+glance. "5 minutes ago" doesn't.
+
+**`ShowSourceFolder`** - only useful once you've got more than one
+`[Watched:...]` block. Without it, figuring out which rule caught a
+given file means reading the full path yourself.
+
+**`ShowSession`** - which recording session (pause/resume cycle) a
+file came from - handy for telling "everything from this morning"
+apart from "everything from just now" without doing the math on
+timestamps yourself.
+
+**`ShowOpened`** - marks files you've already opened through this
+panel before with an "x" - handy when scanning several matches for
+the one you haven't looked at yet. Important limit: this only knows
+about files opened *through RecentTab specifically* - it can't tell
+you whether a file was actually edited afterward in whatever program
+opened it, since that happens completely outside the plugin's view
+(and Windows itself doesn't reliably track this either). Controlled
+separately via `OpenedTracking=session` (forgotten on TC restart,
+the default) or `permanent` (remembered across restarts, in its own
+small `RecentTab_opened.txt` file).
+
+### Custom icons
+
+Every panel entry's icon can be overridden in `[Icons]` - a
+`shell32,<index>` reference, or your own `.ico`/`.exe`/`.dll` (a
+relative path like `icons\age.ico`, used below, resolves against this
+ini's own folder). Left blank or pointing at something that doesn't
+produce an icon, each entry falls back safely to its built-in default -
+no hardcoded system icon index can be guaranteed to look right on every
+Windows version, so this is the actual answer to that rather than a
+fixed guess:
+
+```ini
+[Icons]
+MenuIcon=icons\menu.ico
+AgeIcon=icons\age.ico
+```
+
+### Search - find something in your own history, fast
+
+The normal list shows everything recorded, but scrolling back far
+enough gets old. **Search** is a quick, targeted search **within your
+own recording history** - not Everything's whole index, just what
+you've actually recorded, in your configured folders. No switching
+windows, no detour through another app - results land right back in
+`\\RecentTab\`, same as the normal list.
+
+![The search window](screenshots/search-window.png)
+
+Find it under `! menu` → `! Search`. A small window opens with
+two fields, **FROM** and **TO** - the input is more forgiving than it
+looks:
+
+- A **colon** makes your input a time: `17:00`
+- A **period, dash, or slash** makes it a date: `04.08.2026` (day
+  first - the 4th of August, not April)
+- Both together (space-separated) give an exact point in time:
+  `04.08.2026 17:00`
+- No date given? Assumed to be **today**.
+- No time given? FROM defaults to the start of the day, TO to the end
+  of it - a date-only TO covers the whole day.
+- Leave TO empty for "**until now**".
+
+`! Back to recent files` takes you back to the normal view.
+`UseSearch=0` in `[Settings]` hides the search entirely, if you'd
+rather not have it available at all.
+
 ### The Alt+Enter dialog
 
-Opens a themed, read-only stats window from any of the three pseudo-
-entries: recording status with a live-ticking clock in the title bar,
-which theme and language are currently loaded, your full recording
-history, lifetime usage (survives Reset), whether Everything's IPC
-connection is currently up and which version it's running, watched
-folders (flagged if one doesn't actually exist on disk), and config/
-state file paths. Sizes itself to its actual content rather than a
-fixed size - grows for long paths, scrolls for long lists.
+Opens a themed, read-only stats window from `! REC`, `! menu`, or any
+of the entries inside it: recording status with a live-ticking clock
+in the title bar (`ShowLiveClock=0` to turn that off), which theme and
+language are currently loaded, your full recording history, lifetime
+usage (survives Reset), whether Everything's IPC connection is
+currently up and which version it's running, watched folders (flagged
+if one doesn't actually exist on disk), any `[Icons]` override that
+points at a file that couldn't actually be loaded, and config/state
+file paths. Sizes itself to its actual content rather than a fixed
+size - grows for long paths, scrolls for long lists.
 
 ## Requirements
 
@@ -171,8 +324,14 @@ fixed size - grows for long paths, scrolls for long lists.
   text; **must stay in the same folder as the plugin file**, since it
   looks them up relative to its own location, not TC's config folder
 - `Color_ini_example.ini` - a template for adding another language
+- `icons\age.ico`, `icons\menu.ico` - the default icons for `! Search` and
+  `! menu`, referenced via `[Icons]` - swap them for your own anytime,
+  see Custom icons above
 - `RecentTab_state.json` - created automatically on first use, not
   part of this package; remembers your recording history
+- `RecentTab_opened.txt` - created automatically only if
+  `ShowOpened=1` and `OpenedTracking=permanent`; remembers which files
+  you've already opened through the panel
 
 ## Installation
 

@@ -16,7 +16,11 @@ der Liste ist die echte Datei an ihrem echten Ort - öffnen, bearbeiten,
 kopieren, verschieben, löschen wirkt direkt auf die echte Datei, nichts
 davon ist virtuell oder zwischengespeichert. Die Aufzeichnung selbst ist
 ein Ein/Aus-Schalter, mit der Maus im Panel bedienbar, mit eigenem
-Laufzeit-Zähler.
+Laufzeit-Zähler. Das Panel selbst bleibt bei zwei Einträgen oben:
+`! REC` für diesen Schalter, direkt daneben `! menu` für alles andere
+(Reset, Refresh und die Suche weiter unten) - die eigentliche
+Dateiliste muss sich also nie den Platz mit einer Reihe von Buttons
+teilen.
 
 Der Zustand liegt in einer eigenen Datei neben dem Plugin, nicht im
 Arbeitsspeicher. Tab versehentlich geschlossen, Total Commander beendet,
@@ -64,7 +68,11 @@ eigene Übersetzungen erweitern.
   Windows speichert grundsätzlich nicht zuverlässig, *welcher Prozess*
   eine Datei angefasst hat, nur *dass* sie sich geändert hat - eine
   harte Plattformgrenze, kein Punkt für ein zukünftiges Update.
-- 
+- Eine Datei, die innerhalb der letzten ein bis zwei Sekunden geändert
+  wurde, während die Aufzeichnung noch aktiv läuft, kann gelegentlich
+  einen zusätzlichen Refresh brauchen, bis sie erscheint - Everythings
+  eigener Live-Index braucht dafür einen kurzen Moment. Pausieren (oder
+  etwas länger warten) löst das immer auf.
 
 ---
 
@@ -81,9 +89,14 @@ SortDescending=1     ; 0 = älteste zuerst statt neueste zuerst
 Language=eng         ; eng (Standard) / deu / passt zu einer Sektion in RecentTab_lang.ini
 DebugLogging=1       ; 0 = RecentTab_debug.log nicht mehr schreiben (echte Kosten pro Aufruf, solange an)
 IncludeDefaultFolders=0  ; 1 = eigene [Watched:...]-Blöcke zu den sechs Standardordnern hinzufügen statt sie zu ersetzen
+RootButtons=          ; Reset;Refresh;Search an die Wurzel holen, statt nur im "! menu"
+UseSearch=1            ; 0 = die Suche komplett ausblenden, kein Zugriffsweg mehr
+ShowLiveClock=1        ; 0 = die tickende Uhr im Alt+Enter-Fenstertitel abschalten
+NoColors=0             ; 1 = überall reine Systemfarben statt jedem Theme
 
 [Theme]
-Name=gruvbox         ; gruvbox (Standard) / dracula / monokai / everforest / custom
+Name=basic            ; basic (Standard) / gruvbox / everforest / solarized / custom
+Mode=dark             ; dark (Standard) / light
 ```
 
 ### Beobachtete Ordner wählen (Whitelist) und was darin übersprungen wird (Blacklist)
@@ -110,26 +123,72 @@ Blöcke zu den sechs Standardordnern hinzugefügt statt sie zu ersetzen
 `Exclude=`, wird diese Version statt des einfachen Standards
 verwendet - kein doppelter Eintrag).
 
+### Filtern nach Dateityp
+
+`OnlyExtensions=` ist global (gilt für alle beobachteten Ordner
+gleichzeitig):
+
+```ini
+[Settings]
+;OnlyExtensions=docx;pdf;jpg
+```
+
+Akzeptiert `exe`, `*.exe` oder `.exe` je Eintrag - wie auch immer man's
+natürlich eintippt. Sofern überhaupt gesetzt, hat es absoluten
+Vorrang - nur Dateien, die darauf passen, werden gezeigt, jedes
+`ExcludeExtensions=` (global oder pro Ordner) wird währenddessen
+komplett ignoriert.
+
+`ExcludeExtensions=` selbst liegt dagegen pro beobachtetem Ordner -
+eine einzige globale Ausschlussliste könnte zwei unterschiedlich
+genutzte Ordner nicht auseinanderhalten:
+
+```ini
+[Watched:Projects]
+Path=D:\Projects
+ExcludeExtensions=exe;dll
+```
+
 ### Farbschemata
 
-Vier eingebaute Presets - `gruvbox` (Standard), `dracula`, `monokai`,
-`everforest`. Oder `Name=custom` setzen und eigene Farben angeben:
+Vier eingebaute Preset-Familien - `basic` (Standard), `gruvbox`,
+`everforest`, `solarized` - jede in Hell- und Dunkelvariante über
+`Mode=`:
+
+```ini
+[Theme]
+Name=basic
+Mode=dark             ; dark (Standard) / light
+```
+
+(Dracula und Monokai stehen hier nicht mehr als Presets zur
+Verfügung - keins von beiden hat eine offizielle helle Variante, um
+es mit den anderen dreien zu paaren; für einen Dracula/Monokai-Look
+dafür `custom` nutzen.) Oder `Name=custom` setzen und eigene Farben
+angeben:
 
 ```ini
 [Theme]
 Name=custom
-Background=#282828
-Foreground=#ebdbb2
-Heading=#d3869b
-Green=#b8bb26
-Accent2=#8ec07c
-Yellow=#fabd2f
-Accent4=#fe8019
-Muted=#928374
+Background=#1c1c1c
+Foreground=#ebebeb
+Heading=#b98eff
+Green=#7cc576
+Accent2=#5aa9e6
+Yellow=#e8c24a
+Accent4=#e8730a
+Muted=#8a8a8a
 ```
 
-Jede leer gelassene Farbe fällt auf den passenden Gruvbox-Wert zurück,
+Jede leer gelassene Farbe fällt auf den passenden Basic-Wert zurück,
 ein unvollständiges Custom-Theme sieht also nie kaputt aus.
+
+`NoColors=1` in `[Settings]` hebelt jedes Theme oben komplett aus -
+reine Systemfarben stattdessen, überall (Alt+Enter-Dialog, Suchfenster,
+und Menu.exe, sobald es existiert). Jede Rolle, die über Farbe
+Bedeutung trägt, sagt das auch im Text selbst (Warnungen buchstabieren
+"WARNUNG:" aus) - nichts wird dadurch unlesbar, nur optisch weniger
+auffällig.
 
 ### Sprache
 
@@ -145,17 +204,115 @@ auf Englisch zurück.
 die der Datei hinzugefügt wurde - eine Vorlage zum Herauskopieren einer
 `[xyz]`-Sektion, wird nicht automatisch geladen.
 
+### Zusatzspalten
+
+Fünf optionale Spalten, jede standardmäßig aus - nur die aktivieren,
+die man wirklich will, dann über TCs eigenes Shift+F1 "Configure
+custom columns" zum Panel hinzufügen:
+
+```ini
+[Settings]
+;ShowChangeType=0
+;ShowRelativeTime=0
+;ShowSourceFolder=0
+;ShowSession=0
+;ShowOpened=0
+```
+
+![SourceFolder, RelativeTime und Session-Spalten im Panel](screenshots/extra-columns.png)
+
+**`ShowChangeType`** - das Plugin entscheidet intern ja schon, ob die
+*Änderung* oder die *Erstellung* einer Datei den Ausschlag gegeben hat
+(siehe die Anmerkung zu `dm:`/`dc:` weiter oben - deckt den
+Archiv-Fall ab, wo eine alte Datei mit unverändertem Änderungsdatum
+neu ausgepackt wird, aber *hier* trotzdem neu ist). Diese Spalte macht
+diese schon vorhandene Entscheidung nur sichtbar ("Geändert" / "Neu"),
+statt sie rein intern zu halten.
+
+**`ShowRelativeTime`** - ein reines Datum braucht einen Moment zum
+Erfassen. "vor 5 Minuten" nicht.
+
+**`ShowSourceFolder`** - nur nützlich, sobald mehr als ein
+`[Watched:...]`-Block existiert. Ohne sie müsste man den vollen Pfad
+selbst lesen, um herauszufinden, welche Regel gegriffen hat.
+
+**`ShowSession`** - aus welcher Aufzeichnungssitzung (Pause/Resume-
+Zyklus) eine Datei stammt - praktisch, um "alles von heute Vormittag"
+von "alles von eben" zu unterscheiden, ohne selbst mit Zeitstempeln zu
+rechnen.
+
+**`ShowOpened`** - markiert Dateien, die schon mal über dieses Panel
+geöffnet wurden, mit einem "x" - praktisch beim Durchsehen mehrerer
+Treffer, um die noch nicht angeschaute zu finden. Wichtige Grenze
+dabei: Das weiß nur über Dateien Bescheid, die *über RecentTab selbst*
+geöffnet wurden - ob danach im externen Programm wirklich etwas
+bearbeitet wurde, sehen wir nicht, das passiert komplett außerhalb der
+Sichtbarkeit des Plugins (und selbst Windows verfolgt das nicht
+zuverlässig). Getrennt gesteuert über `OpenedTracking=session`
+(vergisst bei TC-Neustart, Standard) oder `permanent` (übersteht
+Neustarts, in einer eigenen kleinen Datei `RecentTab_opened.txt`).
+
+### Eigene Icons
+
+Jedes Icon der Panel-Einträge lässt sich über `[Icons]` überschreiben -
+entweder ein Verweis auf `shell32,<Index>`, oder eine eigene
+`.ico`/`.exe`/`.dll` (ein relativer Pfad wie `icons\age.ico`, wie unten
+verwendet, wird relativ zum Ordner dieser ini aufgelöst). Leer gelassen
+oder zeigt's auf etwas, das kein Icon liefert, fällt jeder Eintrag
+sicher auf seinen eingebauten Standard zurück - kein fest codierter
+Systemsymbol-Index lässt sich garantiert auf jeder Windows-Version
+korrekt darstellen, das hier ist die tatsächliche Antwort darauf statt
+einer weiteren Vermutung:
+
+```ini
+[Icons]
+MenuIcon=icons\menu.ico
+AgeIcon=icons\age.ico
+```
+
+### Suche — schnell in der eigenen Historie finden
+
+Die normale Liste zeigt alles Aufgezeichnete, aber lang zurückscrollen
+ist irgendwann mühsam. **Die Suche** ist genau dafür da: eine schnelle,
+gezielte Suche **innerhalb deiner eigenen Aufzeichnungshistorie** -
+nicht Everythings ganzer Index, nur das, was du selbst schon
+aufgenommen hast, in deinen konfigurierten Ordnern. Kein Fenster
+wechseln, kein Umweg über eine andere Anwendung, das Ergebnis landet
+genauso im `\\RecentTab\`-Panel wie die normale Liste auch.
+
+![Das Suchfenster](screenshots/search-window.png)
+
+Zu finden unter `! menu` → `! Search`. Es öffnet sich ein kleines Fenster
+mit zwei Feldern, **FROM** und **TO** - probier ruhig ein bisschen
+herum, die Eingabe ist toleranter, als sie aussieht:
+
+- Ein **Doppelpunkt** macht aus deiner Eingabe eine Uhrzeit: `17:00`
+- Ein **Punkt, Bindestrich oder Schrägstrich** macht daraus ein Datum:
+  `04.08.2026`
+- Beides zusammen (mit Leerzeichen getrennt) ergibt einen genauen
+  Zeitpunkt: `04.08.2026 17:00`
+- Datum vergessen? Wird automatisch als **heute** angenommen.
+- Uhrzeit vergessen? Bei FROM wird der Tagesanfang angenommen, bei TO
+  das Tagesende - ein reines Datum in TO deckt also den ganzen Tag ab.
+- TO einfach leer lassen, wenn's **bis jetzt** gehen soll.
+
+Mit `! Back to recent files` geht's zurück zur normalen Ansicht. Über
+`UseSearch=0` in `[Settings]` lässt sich die Suche bei Bedarf auch
+komplett ausblenden.
+
 ### Der Alt+Enter-Dialog
 
-Öffnet von jedem der drei Pseudo-Einträge aus ein themenfarbiges,
-schreibgeschütztes Statistikfenster: Aufzeichnungsstatus mit live
-mitlaufender Uhr im Fensterrahmen, geladenes Theme und geladene
-Sprache, vollständige Aufzeichnungshistorie, Lifetime-Nutzung
-(übersteht Reset), ob Everythings IPC-Verbindung gerade steht und
-welche Version läuft, beobachtete Ordner (markiert, falls einer auf
-der Platte gar nicht existiert), und Config-/State-Dateipfade. Passt
-seine Größe an den tatsächlichen Inhalt an statt eine feste Größe zu
-verwenden - wächst bei langen Pfaden, scrollt bei langen Listen.
+Öffnet von `! REC`, `! menu` oder jedem Eintrag darin ein
+themenfarbiges, schreibgeschütztes Statistikfenster: Aufzeichnungsstatus
+mit live mitlaufender Uhr im Fensterrahmen (`ShowLiveClock=0` schaltet
+die ab), geladenes Theme und geladene Sprache, vollständige
+Aufzeichnungshistorie, Lifetime-Nutzung (übersteht Reset), ob
+Everythings IPC-Verbindung gerade steht und welche Version läuft,
+beobachtete Ordner (markiert, falls einer auf der Platte gar nicht
+existiert), jede `[Icons]`-Einstellung, die auf eine nicht ladbare
+Datei zeigt, und Config-/State-Dateipfade. Passt seine Größe an den
+tatsächlichen Inhalt an statt eine feste Größe zu verwenden - wächst
+bei langen Pfaden, scrollt bei langen Listen.
 
 ## Voraussetzungen
 
@@ -175,9 +332,15 @@ verwenden - wächst bei langen Pfaden, scrollt bei langen Listen.
   in TCs Konfigurationsordner
 - `Color_ini_example.ini` - eine Vorlage zum Hinzufügen einer weiteren
   Sprache
+- `icons\age.ico`, `icons\menu.ico` - die Standard-Icons für `! Search`
+  und `! menu`, über `[Icons]` eingebunden - jederzeit gegen eigene
+  austauschbar, siehe Eigene Icons oben
 - `RecentTab_state.json` - wird beim ersten Gebrauch automatisch
   angelegt, nicht Teil dieses Pakets; merkt sich die
   Aufzeichnungshistorie
+- `RecentTab_opened.txt` - wird nur bei `ShowOpened=1` und
+  `OpenedTracking=permanent` automatisch angelegt; merkt sich, welche
+  Dateien schon über das Panel geöffnet wurden
 
 ## Installation
 
