@@ -1,4 +1,8 @@
 [plugininstall]
+description=RecentTab - shows recently modified files as a virtual panel
 type=wfx
 file=RecentTab.wfx
-description=RecentTab - shows recently modified files as a virtual panel
+file=RecentTab.wfx64
+defaultdir=RecentTab
+version=1.1.0
+
