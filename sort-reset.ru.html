@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>RecentTab – Sortierung zurücksetzen</title>
+<style>
+  :root {
+    --background: #2B2A27;
+    --foreground: #EDE0CE;
+    --heading:    #D68F41;
+    --green:      #39B81F;
+    --accent2:    #00A8C6;
+    --yellow:     #EBB626;
+    --accent4:    #D63131;
+    --muted:      #7A7267;
+  }
+
+  html, body {
+    margin: 0;
+    background: #1c1b19;
+    font-family: -apple-system, "Segoe UI", sans-serif;
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+
+  .sheet {
+    max-width: 620px;
+    background: var(--background);
+    color: var(--foreground);
+    border-radius: 6px;
+    padding: 36px 40px;
+    line-height: 1.6;
+    box-shadow: 0 20px 60px rgba(0,0,0,.5);
+  }
+
+  h1 {
+    color: var(--heading);
+    font-size: 20px;
+    margin: 0 0 4px;
+  }
+
+  .sub {
+    color: var(--muted);
+    font-size: 13px;
+    margin: 0 0 28px;
+  }
+
+  h2 {
+    color: var(--yellow);
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    margin: 28px 0 10px;
+  }
+
+  p { margin: 0 0 12px; font-size: 15px; }
+
+  ul {
+    margin: 0 0 12px;
+    padding-left: 20px;
+    font-size: 14px;
+  }
+  ul li {
+    margin-bottom: 6px;
+    color: var(--foreground);
+  }
+  ul li::marker { color: var(--accent2); }
+
+  .fix {
+    color: var(--green);
+    font-weight: 600;
+  }
+
+  code {
+    background: rgba(0,0,0,.25);
+    color: var(--accent2);
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 13px;
+  }
+
+  .note {
+    border-left: 3px solid var(--accent4);
+    padding: 8px 14px;
+    margin-top: 24px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+</style>
+</head>
+<body>
+
+  <div class="sheet">
+    <h1>Сбросить сортировку</h1>
+    <p class="sub">notes/sort-reset/ — Письмо из рук</p>
+
+    <h2>Проблема</h2>
+    <p>
+      При нажатии на заголовок столбца на панели Total
+      Commander самостоятельно пересортировывает данные — независимо от того, какой порядок
+      задаёт сам RecentTab. Если после этого, например, в качестве
+      столбца сортировки выбран путь, записи внезапно
+      группируются в алфавитном порядке по папкам, а не по дате, при том что
+      само содержание не изменилось. Это может показаться
+      ошибкой плагина, но на самом деле это собственное, независимое поведение TC.
+    </p>
+
+    <h2>Решение</h2>
+    <p>
+      <code>! Сброс сортировки</code> в меню одним
+      щелчком <span class="fix">восстанавливает собственный, предполагаемый
+      порядок </span> в RecentTabs — самые последние изменения вначале, так
+      как их предоставляет сам плагин. Не требуется знание механизма
+      сортировки TC, не нужно искать Ctrl+щелчок или Shift+щелчок по
+      нужному столбцу.
+    </p>
+
+    <h2>Дальность действия</h2>
+    <p>
+      Действует на всю панель, а не только на текущую видимую
+      подпапку — то есть работает и из самого меню,
+      даже если вы находитесь в <code>! menu</code>, а не в
+      главном окне.
+    </p>
+    <ul>
+      <li>По умолчанию TC запоминает порядок сортировки для каждой панели, а не
+      для каждой папки</li>
+      <li>Сам по себе переход в другую папку не имеет отдельного места для
+      сохранения метода сортировки</li>
+      <li>Только специально настроенное правило «View Mode» (которое мы
+      не используем) позволило бы разделить сортировку по папкам</li>
+      <li>Поэтому сброшенная сортировка сохраняется даже после
+      выхода из <code>! меню</code></li>
+    </ul>
+
+    <h2>Команда TC, стоящая за этим</h2>
+    <p>
+    <code style="display:block; padding:10px 14px; margin:8px 0;">
+     cm_SrcUnsorted
+     </code>
+     «Source: Unsorted» — официальная внутренняя команда TC.
+     «Source» в TC означает текущую активную панель, «Unsorted» сбрасывает
+     любую сортировку столбцов, выбранную щелчком мыши, и отображает порядок,
+     предоставляемый источником (в нашем случае — самой RecentTab). Внутри программы
+     вызывается точно так же, как <code>cm_RereadSource</code> при нажатии
+     кнопки «Обновить» — это не новый механизм, а просто другая команда.
+    </p>
+
+    <div class="note">
+     Это касается только порядка отображения на панели. При этом
+     ни запись, ни папки «Watched», ни сохраненные данные
+     не изменяются.
+    </div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>RecentTab – Sortierung zurücksetzen</title>
+<style>
+  :root {
+    --background: #2B2A27;
+    --foreground: #EDE0CE;
+    --heading:    #D68F41;
+    --green:      #39B81F;
+    --accent2:    #00A8C6;
+    --yellow:     #EBB626;
+    --accent4:    #D63131;
+    --muted:      #7A7267;
+  }
+
+  html, body {
+    margin: 0;
+    background: #1c1b19;
+    font-family: -apple-system, "Segoe UI", sans-serif;
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+
+  .sheet {
+    max-width: 620px;
+    background: var(--background);
+    color: var(--foreground);
+    border-radius: 6px;
+    padding: 36px 40px;
+    line-height: 1.6;
+    box-shadow: 0 20px 60px rgba(0,0,0,.5);
+  }
+
+  h1 {
+    color: var(--heading);
+    font-size: 20px;
+    margin: 0 0 4px;
+  }
+
+  .sub {
+    color: var(--muted);
+    font-size: 13px;
+    margin: 0 0 28px;
+  }
+
+  h2 {
+    color: var(--yellow);
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    margin: 28px 0 10px;
+  }
+
+  p { margin: 0 0 12px; font-size: 15px; }
+
+  ul {
+    margin: 0 0 12px;
+    padding-left: 20px;
+    font-size: 14px;
+  }
+  ul li {
+    margin-bottom: 6px;
+    color: var(--foreground);
+  }
+  ul li::marker { color: var(--accent2); }
+
+  .fix {
+    color: var(--green);
+    font-weight: 600;
+  }
+
+  code {
+    background: rgba(0,0,0,.25);
+    color: var(--accent2);
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 13px;
+  }
+
+  .note {
+    border-left: 3px solid var(--accent4);
+    padding: 8px 14px;
+    margin-top: 24px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+</style>
+</head>
+<body>
+
+  <div class="sheet">
+    <h1>Sortierung zurücksetzen</h1>
+    <p class="sub">notes/sort-reset/ — Handbrief</p>
+
+    <h2>Problem</h2>
+    <p>
+      Clicking on a column header in the panel causes Total
+      Commander to reorder the list automatically — regardless of the order
+      specified by RecentTab itself. If, for example, the path is then
+      active as the sort column, entries are suddenly
+      grouped alphabetically by folder rather than by date, without any
+      change to the actual content. This may appear to be a
+      bug in the plugin, but it is actually TC’s own, independent behaviour.
+    </p>
+
+    <h2>Solution</h2>
+    <p>
+      <code>! Sortierung zurücksetzen</code> In the menu, with a single
+      click <span class="fix">RecentTabs restores its own, intended
+      order </span> — the most recent changes first, just
+      as the plugin itself displays them. No knowledge of TC’s
+      sorting mechanism is required, and there’s no need to search for the
+      correct column to Ctrl+click or Shift+click on.
+    </p>
+
+    <h2>Reichweite</h2>
+    <p>
+      Applies to the entire panel, not just the currently visible
+      subfolder — so it also works from within the menu itself,
+      even if you’re currently in <code>! menu</code>, not in the
+      main view.
+
+      you don’t have to search for the right column.
+    </p>
+    <ul>
+      <li>By default, TC remembers the sort order per panel, not
+      per folder</li>
+      <li>Changing folders does not in itself have its own storage space for
+      the sort method</li>
+      <li>Only a specially configured ‘View Mode’ rule (which we
+      do not use) would separate this by folder</li>
+  <li>That is why the reset sort order remains in place even after
+exiting <code>! menu</code></li>
+    </ul>
+
+    <h2>The command behind</h2>
+    <p>
+      <code style="display:block; padding:10px 14px; margin:8px 0;">
+        cm_SrcUnsorted
+      </code>
+      "Source: Unsorted" — Official internal TC command.
+       In TC, ‘Source’ refers to the currently active panel; ‘Unsorted’ resets
+       any column sorting that has been applied and displays the order
+       provided by the source (in our case: RecentTab itself). It is triggered internally
+       i.     n exactly the same way as <code>cm_RereadSource</code> when the
+       Refresh button is pressed — not a new mechanism, just a different command.
+    </p>
+
+    <div class="note">
+      This only affects the display order in the panel. It does not
+      affect the recording, the ‘Watched’ folders or any saved data.
+      Nothing changes in this respect.
+    </div>
+  </div>
+
+</body>
+</html>
