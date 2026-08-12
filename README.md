@@ -91,10 +91,17 @@ SortDescending=1     ; 0 = oldest-first instead of newest-first
 Language=eng         ; eng (default) / deu / matches a section in RecentTab_lang.ini
 DebugLogging=1       ; 0 = stop writing RecentTab_debug.log (real per-call I/O cost while on)
 IncludeDefaultFolders=0  ; 1 = add your [Watched:...] blocks to the six defaults instead of replacing them
-RootButtons=          ; bring Reset;Refresh;Search to the root, instead of just inside "! menu"
+RootButtons=          ; bring Reset;Refresh;Search;AutoRefresh to the root, instead of just inside "! menu"
 UseSearch=1            ; 0 = hide the search entirely, no way to reach it
 ShowLiveClock=1        ; 0 = stop the Alt+Enter title bar clock from ticking
 NoColors=0             ; 1 = plain system colors everywhere instead of any theme
+FontBrightness=0       ; -3 to +3, fine-tune the loaded theme's text brightness
+BackgroundBrightness=0 ; -3 to +3, fine-tune the loaded theme's background brightness
+AutoRefresh=0          ; 1 = re-read the panel automatically instead of needing Strg+R
+AutoRefreshIntervalSec=600  ; only relevant if AutoRefresh=1 - minimum enforced is 3s
+;AutoRefreshMaxIdleMin=0     ; 0 = disabled; otherwise skip auto-refresh once the system's been unused this long
+MonoFont=fonts\JetBrainsMono-Regular.ttf   ; the search window's field font - see "Bundled fonts" below
+MonoFontName=JetBrains Mono
 
 [Theme]
 Name=basic            ; basic (default) / gruvbox / everforest / solarized / custom
@@ -168,18 +175,31 @@ and supply your own:
 ```ini
 [Theme]
 Name=custom
-Background=#1c1c1c
-Foreground=#ebebeb
-Heading=#b98eff
-Green=#7cc576
-Accent2=#5aa9e6
-Yellow=#e8c24a
-Accent4=#e8730a
-Muted=#8a8a8a
+Background=#2b2a27
+Foreground=#ede0ce
+Heading=#d68f41
+Green=#39b81f
+Accent2=#00a8c6
+Yellow=#ebb626
+Accent4=#d63131
+Muted=#7a7267
 ```
 
 Any color left blank falls back to the matching basic value, so a
 partial custom theme never looks broken.
+
+Instead of a fixed `Mode=`, light/dark can also follow the clock:
+
+```ini
+[Theme]
+TimeBasedMode=0        ; 1 = ignore Mode= above, decide by hour instead
+LightStartHour=6
+DarkStartHour=18
+```
+
+The defaults mean light from 6:00 to 17:59, dark the rest of the time.
+Checked fresh every time a window opens, so it switches live - no
+restart needed.
 
 `NoColors=1` in `[Settings]` overrides every theme above entirely -
 plain system colors instead, everywhere (Alt+Enter dialog, search
@@ -203,7 +223,7 @@ automatically.
 
 ### Extra columns
 
-Five optional columns, each off by default - turn on only the ones you
+Six optional columns, each off by default - turn on only the ones you
 actually want, then add them to the panel via Total Commander's own
 Shift+F1 "Configure custom columns":
 
@@ -214,6 +234,7 @@ Shift+F1 "Configure custom columns":
 ;ShowSourceFolder=0
 ;ShowSession=0
 ;ShowOpened=0
+;ShowLocked=0
 ```
 
 ![SourceFolder, RelativeTime and Session columns in the panel](screenshots/extra-columns.png)
@@ -248,6 +269,21 @@ opened it, since that happens completely outside the plugin's view
 separately via `OpenedTracking=session` (forgotten on TC restart,
 the default) or `permanent` (remembered across restarts, in its own
 small `RecentTab_opened.txt` file).
+
+**`ShowLocked`** - "Access", "Locked", or "Not found" - is another
+program currently holding the file open? Checked on a background
+thread, so the panel itself never waits on it - the column just stays
+blank for a moment until the check finishes, usually well before the
+next repaint. The check genuinely opens each listed file to test it,
+which touches the file's last-access time and can wake antivirus or
+cloud sync - worth knowing before turning this on. Local drives are
+always checked; network drives, removable media, and optical drives
+are off by default (each an individual round-trip or a drive that may
+need to spin up first) and re-enabled individually via
+`AllowDriveNetwork=`, `AllowDriveRemovable=`, `AllowDriveCDRom=`.
+Cloud placeholder files (OneDrive Files On-Demand and similar) are
+skipped outright - never touched, so browsing never triggers a
+download.
 
 ### Custom icons
 
@@ -307,6 +343,82 @@ if one doesn't actually exist on disk), any `[Icons]` override that
 points at a file that couldn't actually be loaded, and config/state
 file paths. Sizes itself to its actual content rather than a fixed
 size - grows for long paths, scrolls for long lists.
+
+### Auto-Refresh - the panel updates itself, if you want it to
+
+Off by default. Turn it on and the panel re-reads itself on a timer,
+without needing `Strg+R`:
+
+```ini
+[Settings]
+AutoRefresh=0
+AutoRefreshIntervalSec=600
+```
+
+Also toggleable at runtime from `! menu` → `! Auto-Refresh: ...` -
+pressing Enter on it cycles Off → 1 → 5 → 10 → 30 minutes → Off, no
+ini edit or restart needed. That menu toggle only affects the current
+session; the ini value is just what it starts at when TC loads the
+plugin.
+
+A few things it deliberately checks before firing, so it doesn't do
+anything surprising in the background:
+
+- Only fires while the active panel is actually showing RecentTab -
+  never re-reads a panel you're not looking at
+- `AutoRefreshMaxIdleMin=` - skips it once the system's been unused
+  this long (mouse/keyboard idle, not just TC idle)
+
+The Alt+Enter dialog shows what actually happened on the last tick -
+not just "it ran," but whether the data query itself succeeded, found
+changes, found nothing new, or failed outright. The short version: a plain tick counter would show that something was *attempted*, not whether it actually worked - so it deliberately doesn't use one.
+
+### Brightness sliders - nudge a theme without picking new colors
+
+```ini
+[Settings]
+FontBrightness=0        ; -3 to +3
+BackgroundBrightness=0  ; -3 to +3
+```
+
+Seven fixed steps each, not a free number - `FontBrightness` shifts
+every text color, `BackgroundBrightness` shifts only the background
+(a narrower range, since it's the largest surface and more sensitive
+to contrast loss). If a particular combination of the two would leave
+too little contrast between text and background, both are silently
+ignored and a warning appears in the Alt+Enter dialog instead of a
+barely-readable result. Fixed, pre-checked steps beat a free number here for the same reason the theme presets themselves are curated rather than arbitrary.
+
+### Bundled fonts
+
+The search window's FROM/TO fields use a monospace font, loaded
+privately for this process only - no system-wide install, no admin
+rights needed, looks the same regardless of what's installed on the
+machine it runs on. Two fonts ship in the `fonts\` folder (both SIL
+Open Font License, free to redistribute): JetBrains Mono (the
+default) and Fira Code.
+
+```ini
+[Settings]
+MonoFont=fonts\JetBrainsMono-Regular.ttf
+MonoFontName=JetBrains Mono
+;MonoFont=fonts\FiraCode-Regular.ttf
+;MonoFontName=Fira Code
+```
+
+Any other compatible monospace `.ttf` works too - both lines need to
+match the file you're pointing at: `MonoFont=` is the file path,
+`MonoFontName=` is the font's own internal family name, which isn't
+always the same as the file name. A wrong `MonoFontName=` doesn't
+error or crash - Windows just silently substitutes another font, and
+you only notice from the look. To find the right name for a font
+file you're not sure about: right-click it in Explorer → Preview (or
+just double-click it) - the preview window's title shows the real
+family name.
+
+To use Cascadia Code instead (already installed with Windows, nothing
+to download): leave `MonoFont=` blank and set
+`MonoFontName=Cascadia Code`.
 
 ## Requirements
 

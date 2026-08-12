@@ -89,10 +89,17 @@ SortDescending=1     ; 0 = älteste zuerst statt neueste zuerst
 Language=eng         ; eng (Standard) / deu / passt zu einer Sektion in RecentTab_lang.ini
 DebugLogging=1       ; 0 = RecentTab_debug.log nicht mehr schreiben (echte Kosten pro Aufruf, solange an)
 IncludeDefaultFolders=0  ; 1 = eigene [Watched:...]-Blöcke zu den sechs Standardordnern hinzufügen statt sie zu ersetzen
-RootButtons=          ; Reset;Refresh;Search an die Wurzel holen, statt nur im "! menu"
+RootButtons=          ; Reset;Refresh;Search;AutoRefresh an die Wurzel holen, statt nur im "! menu"
 UseSearch=1            ; 0 = die Suche komplett ausblenden, kein Zugriffsweg mehr
 ShowLiveClock=1        ; 0 = die tickende Uhr im Alt+Enter-Fenstertitel abschalten
 NoColors=0             ; 1 = überall reine Systemfarben statt jedem Theme
+FontBrightness=0       ; -3 bis +3, Textfarben des geladenen Themes feinjustieren
+BackgroundBrightness=0 ; -3 bis +3, Hintergrundfarbe des geladenen Themes feinjustieren
+AutoRefresh=0          ; 1 = Panel automatisch neu einlesen, statt Strg+R zu brauchen
+AutoRefreshIntervalSec=600  ; nur relevant bei AutoRefresh=1 - Untergrenze von 3s wird erzwungen
+;AutoRefreshMaxIdleMin=0     ; 0 = aus; sonst Auto-Refresh aussetzen, wenn das System so lange unbenutzt war
+MonoFont=fonts\JetBrainsMono-Regular.ttf   ; Schriftart der Suchfenster-Felder - siehe "Mitgelieferte Schriften" unten
+MonoFontName=JetBrains Mono
 
 [Theme]
 Name=basic            ; basic (Standard) / gruvbox / everforest / solarized / custom
@@ -170,18 +177,31 @@ angeben:
 ```ini
 [Theme]
 Name=custom
-Background=#1c1c1c
-Foreground=#ebebeb
-Heading=#b98eff
-Green=#7cc576
-Accent2=#5aa9e6
-Yellow=#e8c24a
-Accent4=#e8730a
-Muted=#8a8a8a
+Background=#2b2a27
+Foreground=#ede0ce
+Heading=#d68f41
+Green=#39b81f
+Accent2=#00a8c6
+Yellow=#ebb626
+Accent4=#d63131
+Muted=#7a7267
 ```
 
 Jede leer gelassene Farbe fällt auf den passenden Basic-Wert zurück,
 ein unvollständiges Custom-Theme sieht also nie kaputt aus.
+
+Statt einem festen `Mode=` kann Hell/Dunkel auch der Uhrzeit folgen:
+
+```ini
+[Theme]
+TimeBasedMode=0        ; 1 = Mode= oben ignorieren, stattdessen nach Uhrzeit entscheiden
+LightStartHour=6
+DarkStartHour=18
+```
+
+Die Standardwerte bedeuten hell von 6:00 bis 17:59, dunkel den Rest
+der Zeit. Wird bei jedem Fensteröffnen frisch geprüft, schaltet also
+live um, kein Neustart nötig.
 
 `NoColors=1` in `[Settings]` hebelt jedes Theme oben komplett aus -
 reine Systemfarben stattdessen, überall (Alt+Enter-Dialog, Suchfenster,
@@ -206,7 +226,7 @@ die der Datei hinzugefügt wurde - eine Vorlage zum Herauskopieren einer
 
 ### Zusatzspalten
 
-Fünf optionale Spalten, jede standardmäßig aus - nur die aktivieren,
+Sechs optionale Spalten, jede standardmäßig aus - nur die aktivieren,
 die man wirklich will, dann über TCs eigenes Shift+F1 "Configure
 custom columns" zum Panel hinzufügen:
 
@@ -217,6 +237,7 @@ custom columns" zum Panel hinzufügen:
 ;ShowSourceFolder=0
 ;ShowSession=0
 ;ShowOpened=0
+;ShowLocked=0
 ```
 
 ![SourceFolder, RelativeTime und Session-Spalten im Panel](screenshots/extra-columns.png)
@@ -251,6 +272,21 @@ Sichtbarkeit des Plugins (und selbst Windows verfolgt das nicht
 zuverlässig). Getrennt gesteuert über `OpenedTracking=session`
 (vergisst bei TC-Neustart, Standard) oder `permanent` (übersteht
 Neustarts, in einer eigenen kleinen Datei `RecentTab_opened.txt`).
+
+**`ShowLocked`** - "Access", "Locked" oder "Not found" - hält gerade
+ein anderes Programm die Datei geöffnet? Läuft auf einem
+Hintergrund-Thread, das Panel selbst wartet nie darauf - die Spalte
+bleibt kurz leer, bis der Check fertig ist, meist noch vor dem
+nächsten Neuzeichnen. Der Check öffnet dabei tatsächlich jede
+gelistete Datei zum Testen, was ihre Zugriffszeit verändert und
+Antivirus oder Cloud-Sync aufwecken kann - gut zu wissen, bevor man's
+einschaltet. Lokale Laufwerke werden immer geprüft; Netzlaufwerke,
+Wechseldatenträger und optische Laufwerke sind standardmäßig aus
+(jeweils ein eigener Roundtrip oder ein Laufwerk, das erst hochfahren
+müsste) und einzeln über `AllowDriveNetwork=`, `AllowDriveRemovable=`,
+`AllowDriveCDRom=` wieder einschaltbar. Cloud-Platzhalterdateien
+(OneDrive Files On-Demand und Ähnliches) werden komplett übersprungen
+- nie angefasst, sodass Durchblättern nie einen Download auslöst.
 
 ### Eigene Icons
 
@@ -313,6 +349,88 @@ existiert), jede `[Icons]`-Einstellung, die auf eine nicht ladbare
 Datei zeigt, und Config-/State-Dateipfade. Passt seine Größe an den
 tatsächlichen Inhalt an statt eine feste Größe zu verwenden - wächst
 bei langen Pfaden, scrollt bei langen Listen.
+
+### Auto-Refresh - das Panel aktualisiert sich selbst, wenn gewünscht
+
+Standardmäßig aus. Einschalten, und das Panel liest sich selbst nach
+einem Zeitplan neu ein, ohne `Strg+R`:
+
+```ini
+[Settings]
+AutoRefresh=0
+AutoRefreshIntervalSec=600
+```
+
+Auch zur Laufzeit umschaltbar über `! menu` → `! Auto-Refresh: ...` -
+Enter darauf schaltet zyklisch Aus → 1 → 5 → 10 → 30 Minuten → Aus,
+keine ini-Änderung oder Neustart nötig. Dieser Menü-Schalter wirkt nur
+für die laufende Sitzung; der ini-Wert ist nur der Startwert beim
+Laden des Plugins.
+
+Ein paar Dinge werden bewusst vor jedem automatischen Refresh geprüft,
+damit im Hintergrund nichts Überraschendes passiert:
+
+- Feuert nur, solange das aktive Panel tatsächlich RecentTab zeigt -
+  aktualisiert nie ein Panel, das man gerade gar nicht anschaut
+- `AutoRefreshMaxIdleMin=` - setzt aus, sobald das System so lange
+  unbenutzt war (Maus/Tastatur-Ruhe, nicht nur TC selbst)
+
+Der Alt+Enter-Dialog zeigt, was beim letzten Tick tatsächlich passiert
+ist - nicht nur "es lief", sondern ob die Datenabfrage selbst
+erfolgreich war, Änderungen fand, nichts Neues fand, oder komplett
+fehlschlug. Die Kurzfassung der Überlegung dahinter: Ein einfacher
+Tick-Zähler würde nur zeigen, dass etwas *versucht* wurde, nicht ob es
+tatsächlich geklappt hat - deshalb bewusst keiner.
+
+### Helligkeitsregler - ein Theme nachjustieren, ohne neue Farben zu wählen
+
+```ini
+[Settings]
+FontBrightness=0        ; -3 bis +3
+BackgroundBrightness=0  ; -3 bis +3
+```
+
+Sieben feste Stufen pro Regler, kein freier Wert - `FontBrightness`
+verschiebt alle Textfarben, `BackgroundBrightness` nur den Hintergrund
+(enger bemessen, da er die größte Fläche einnimmt und empfindlicher
+auf Kontrastverlust reagiert). Würde eine bestimmte Kombination aus
+beiden zu wenig Kontrast zwischen Text und Hintergrund übrig lassen,
+werden beide stillschweigend ignoriert und eine Warnung erscheint im
+Alt+Enter-Dialog, statt eines kaum lesbaren Ergebnisses. Feste,
+vorab geprüfte Stufen statt eines freien Werts, aus demselben Grund,
+warum die Theme-Presets selbst kuratiert sind statt beliebig.
+
+### Mitgelieferte Schriften
+
+Die FROM/TO-Felder im Suchfenster nutzen eine Monospace-Schrift, die
+privat nur für diesen Prozess geladen wird - keine systemweite
+Installation, keine Administrator-Rechte nötig, sieht überall gleich
+aus, unabhängig davon, was auf der jeweiligen Maschine installiert
+ist. Zwei Schriften liegen im `fonts\`-Ordner bei (beide SIL Open Font
+License, frei weitergebbar): JetBrains Mono (Standard) und Fira Code.
+
+```ini
+[Settings]
+MonoFont=fonts\JetBrainsMono-Regular.ttf
+MonoFontName=JetBrains Mono
+;MonoFont=fonts\FiraCode-Regular.ttf
+;MonoFontName=Fira Code
+```
+
+Jede andere kompatible Monospace-`.ttf` funktioniert genauso - beide
+Zeilen müssen zur jeweiligen Datei passen: `MonoFont=` ist der
+Dateipfad, `MonoFontName=` ist der interne Schriftfamilien-Name der
+Schrift selbst, der nicht immer mit dem Dateinamen übereinstimmt. Ein
+falscher `MonoFontName=` erzeugt keinen Fehler und keinen Absturz -
+Windows tauscht einfach still eine Ersatzschrift ein, man merkt es nur
+an der Optik. Um den richtigen Namen zu einer unbekannten Schriftdatei
+zu finden: Rechtsklick im Explorer → Vorschau (oder einfach
+Doppelklick) - der Titel des Vorschaufensters zeigt den echten
+Familiennamen.
+
+Für Cascadia Code stattdessen (schon mit Windows installiert, nichts
+herunterzuladen): `MonoFont=` leer lassen und
+`MonoFontName=Cascadia Code` setzen.
 
 ## Voraussetzungen
 

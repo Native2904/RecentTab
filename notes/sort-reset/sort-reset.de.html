@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>RecentTab – Sortierung zurücksetzen</title>
+<style>
+  :root {
+    --background: #2B2A27;
+    --foreground: #EDE0CE;
+    --heading:    #D68F41;
+    --green:      #39B81F;
+    --accent2:    #00A8C6;
+    --yellow:     #EBB626;
+    --accent4:    #D63131;
+    --muted:      #7A7267;
+  }
+
+  html, body {
+    margin: 0;
+    background: #1c1b19;
+    font-family: -apple-system, "Segoe UI", sans-serif;
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+
+  .sheet {
+    max-width: 620px;
+    background: var(--background);
+    color: var(--foreground);
+    border-radius: 6px;
+    padding: 36px 40px;
+    line-height: 1.6;
+    box-shadow: 0 20px 60px rgba(0,0,0,.5);
+  }
+
+  h1 {
+    color: var(--heading);
+    font-size: 20px;
+    margin: 0 0 4px;
+  }
+
+  .sub {
+    color: var(--muted);
+    font-size: 13px;
+    margin: 0 0 28px;
+  }
+
+  h2 {
+    color: var(--yellow);
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    margin: 28px 0 10px;
+  }
+
+  p { margin: 0 0 12px; font-size: 15px; }
+
+  ul {
+    margin: 0 0 12px;
+    padding-left: 20px;
+    font-size: 14px;
+  }
+  ul li {
+    margin-bottom: 6px;
+    color: var(--foreground);
+  }
+  ul li::marker { color: var(--accent2); }
+
+  .fix {
+    color: var(--green);
+    font-weight: 600;
+  }
+
+  code {
+    background: rgba(0,0,0,.25);
+    color: var(--accent2);
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 13px;
+  }
+
+  .note {
+    border-left: 3px solid var(--accent4);
+    padding: 8px 14px;
+    margin-top: 24px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+</style>
+</head>
+<body>
+
+  <div class="sheet">
+    <h1>Sortierung zurücksetzen</h1>
+    <p class="sub">notes/sort-reset/ — Handbrief</p>
+
+    <h2>Problem</h2>
+    <p>
+      Ein Klick auf eine Spaltenüberschrift im Panel sortiert Total
+      Commander eigenständig um — unabhängig davon, was RecentTab
+      selbst als Reihenfolge vorsieht. Ist danach z. B. der Pfad als
+      Sortierspalte aktiv, gruppieren sich Einträge plötzlich
+      alphabetisch nach Ordner statt nach Datum, ohne dass sich am
+      eigentlichen Inhalt etwas geändert hätte. Wirkt dann wie ein
+      Fehler im Plugin, ist aber TCs eigenes, unabhängiges Verhalten.
+    </p>
+
+    <h2>Lösung</h2>
+    <p>
+      <code>! Sortierung zurücksetzen</code> im Menü holt mit einem
+      Klick <span class="fix">RecentTabs eigene, gedachte
+      Reihenfolge</span> zurück — die neuesten Änderungen zuerst, so
+      wie das Plugin sie selbst liefert. Kein Wissen über TCs
+      Sortier-Mechanik nötig, kein Ctrl+Klick oder Shift+Klick auf die
+      richtige Spalte suchen müssen.
+    </p>
+
+    <h2>Reichweite</h2>
+    <p>
+      Wirkt fürs ganze Panel, nicht nur für den gerade sichtbaren
+      Unterordner — funktioniert also auch aus dem Menü selbst heraus,
+      auch wenn man gerade in <code>! menu</code> steht, nicht in der
+      Hauptansicht.
+    </p>
+    <ul>
+      <li>TC merkt sich die Sortierung standardmäßig pro Panel, nicht
+          pro Ordner</li>
+      <li>Ein Ordnerwechsel selbst hat keinen eigenen Speicherplatz für
+          die Sortiermethode</li>
+      <li>Nur eine eigens eingerichtete "View Mode"-Regel (nutzen wir
+          nicht) würde das ordnerweise trennen</li>
+      <li>Deshalb bleibt die zurückgesetzte Sortierung auch nach dem
+          Verlassen von <code>! menu</code> bestehen</li>
+    </ul>
+
+    <h2>Das TC-Kommando dahinter</h2>
+    <p>
+      <code style="display:block; padding:10px 14px; margin:8px 0;">
+        cm_SrcUnsorted
+      </code>
+      "Source: Unsorted" — offizielles TC-internes Kommando.
+      "Source" meint bei TC das gerade aktive Panel, "Unsorted" wirft
+      jede angeklickte Spalten-Sortierung weg und zeigt die Reihenfolge,
+      die die Quelle (bei uns: RecentTab selbst) liefert. Wird intern
+      genauso abgefeuert wie <code>cm_RereadSource</code> beim
+      Refresh-Knopf — kein neuer Mechanismus, nur ein anderes Kommando.
+    </p>
+
+    <div class="note">
+      Betrifft nur die Anzeige-Reihenfolge im Panel. An der
+      Aufzeichnung, den Watched-Ordnern oder gespeicherten Daten ändert
+      sich dabei nichts.
+    </div>
+  </div>
+
+</body>
+</html>
