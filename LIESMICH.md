@@ -4,8 +4,7 @@ Ein Total-Commander-Dateisystem-Plugin (WFX), das kürzlich geänderte
 Dateien als virtuelles Panel anzeigt - ähnlich der "Zuletzt benutzt"-
 Ansicht des macOS Finders.
 
-![RecentTab Screenshot](https://raw.githubusercontent.com/Native2904/RecentTab/401f106849b2704410123273c37a39fb2bbb4be2/2026-08-03_153508.png)
-
+<img width="1920" height="865" alt="2026-08-14_101321" src="https://github.com/user-attachments/assets/1ad5dab8-d918-450b-8921-fcd58f83673d" />
 ## Was es kann
 
 `\\RecentTab\` in Total Commander öffnen zeigt eine flache, chronologische
