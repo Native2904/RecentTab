@@ -3,7 +3,7 @@
 A Total Commander WFX (File System) plugin that shows recently modified
 files as a virtual panel - similar to macOS Finder's "Recents" view.
 
-![RecentTab screenshot]<img width="1916" height="886" alt="2026-08-16_190206" src="https://github.com/user-attachments/assets/ffb9bfb5-8ff9-49d2-8024-bedf05098444" />
+<img width="1916" height="886" alt="2026-08-16_190206" src="https://github.com/user-attachments/assets/ffb9bfb5-8ff9-49d2-8024-bedf05098444" />
 
 
 ## What it can do
