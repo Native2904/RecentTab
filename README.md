@@ -3,8 +3,7 @@
 A Total Commander WFX (File System) plugin that shows recently modified
 files as a virtual panel - similar to macOS Finder's "Recents" view.
 
-<img width="1920" height="865" alt="2026-08-14_101321" src="https://github.com/user-attachments/assets/1ad5dab8-d918-450b-8921-fcd58f83673d" />
-
+![RecentTab screenshot](https://raw.githubusercontent.com/Native2904/RecentTab/401f106849b2704410123273c37a39fb2bbb4be2/2026-08-03_153508.png)
 
 ## What it can do
 
@@ -420,6 +419,32 @@ family name.
 To use Cascadia Code instead (already installed with Windows, nothing
 to download): leave `MonoFont=` blank and set
 `MonoFontName=Cascadia Code`.
+
+### Lost files - what disappeared, and when
+
+Off by default. Turn it on and RecentTab starts noticing when
+something it was tracking disappears - deleted, moved outside a
+watched folder, or renamed all look identical from here, so this never
+claims to know which happened, just that something did:
+
+```ini
+[Settings]
+TrackLostFiles=0
+LostFilesTracking=session
+```
+
+Shows up as `! Lost` inside `! menu`, with the count visible in TC's
+own Size column. Each entry remembers whatever was last known about it
+- name, size, dates, which watched folder, which recording session -
+and opening one shows a small info window with all of it, plus a
+"Search again" button that asks Everything for the exact filename
+system-wide, no folder restriction, in case it just moved rather than
+vanished. This is deliberately not a live/instant detector - it only
+knows something's missing between one refresh and the next, never the
+exact moment. Cleared together with the recording history on Reset,
+not separately. See `notes/lost-files/` for the fuller reasoning,
+including why a couple of more ambitious approaches (a live background
+watcher, reading the Recycle Bin) were considered and set aside.
 
 ## Requirements
 

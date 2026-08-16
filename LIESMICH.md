@@ -4,7 +4,8 @@ Ein Total-Commander-Dateisystem-Plugin (WFX), das kürzlich geänderte
 Dateien als virtuelles Panel anzeigt - ähnlich der "Zuletzt benutzt"-
 Ansicht des macOS Finders.
 
-<img width="1920" height="865" alt="2026-08-14_101321" src="https://github.com/user-attachments/assets/1ad5dab8-d918-450b-8921-fcd58f83673d" />
+![RecentTab Screenshot](https://raw.githubusercontent.com/Native2904/RecentTab/401f106849b2704410123273c37a39fb2bbb4be2/2026-08-03_153508.png)
+
 ## Was es kann
 
 `\\RecentTab\` in Total Commander öffnen zeigt eine flache, chronologische
@@ -430,6 +431,34 @@ Familiennamen.
 Für Cascadia Code stattdessen (schon mit Windows installiert, nichts
 herunterzuladen): `MonoFont=` leer lassen und
 `MonoFontName=Cascadia Code` setzen.
+
+### Verlorene Dateien - was verschwunden ist, und wann
+
+Standardmäßig aus. Einschalten, und RecentTab merkt sich, wenn etwas
+Beobachtetes verschwindet - gelöscht, außerhalb eines beobachteten
+Ordners verschoben, oder umbenannt sehen von hier aus identisch aus,
+deshalb wird nie behauptet, welcher Fall genau zutrifft, nur dass
+etwas passiert ist:
+
+```ini
+[Settings]
+TrackLostFiles=0
+LostFilesTracking=session
+```
+
+Erscheint als `! Lost` innerhalb von `! menu`, mit der Anzahl in TCs
+eigener Größen-Spalte sichtbar. Jeder Eintrag merkt sich, was zuletzt
+bekannt war - Name, Größe, Daten, welcher beobachtete Ordner, welche
+Aufzeichnungssitzung - und beim Öffnen erscheint ein kleines
+Info-Fenster mit allem davon, plus ein "Erneut suchen"-Button, der
+Everything systemweit nach dem exakten Dateinamen fragt, ohne
+Ordner-Einschränkung, falls sie nur verschoben statt verschwunden ist.
+Bewusst kein Live-/Sofort-Erkenner - weiß nur, dass zwischen zwei
+Aktualisierungen etwas fehlt, nie den genauen Moment. Wird zusammen
+mit dem Aufzeichnungsverlauf beim Zurücksetzen gelöscht, nicht separat.
+Siehe `notes/lost-files/` für die ausführlichere Begründung, inklusive
+warum zwei ambitioniertere Ansätze (ein Live-Hintergrundbeobachter, den
+Papierkorb auslesen) erwogen und wieder verworfen wurden.
 
 ## Voraussetzungen
 
