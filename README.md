@@ -3,8 +3,7 @@
 A Total Commander WFX (File System) plugin that shows recently modified
 files as a virtual panel - similar to macOS Finder's "Recents" view.
 
-<img width="1916" height="886" alt="2026-08-16_190206" src="https://github.com/user-attachments/assets/ffb9bfb5-8ff9-49d2-8024-bedf05098444" />
-
+![RecentTab screenshot](https://raw.githubusercontent.com/Native2904/RecentTab/401f106849b2704410123273c37a39fb2bbb4be2/2026-08-03_153508.png)
 
 ## What it can do
 
@@ -21,6 +20,30 @@ entries at the top - `! REC` for that switch, and `! menu` next to it
 for everything else (reset, refresh, and the search below) - so the
 list of actual files never has to compete with a row of buttons for
 space.
+
+At a glance:
+
+- **Recording** - simple on/off switch, survives restarts, its own
+  runtime counter
+- **Search** - jump to any past time range, not just "recent"
+- **Six color themes** - light/dark, or automatic by time of day
+- **Auto-Refresh** - the panel updates itself on a schedule, no manual
+  `Strg+R` needed
+- **Lost files** - notices when something you were tracking
+  disappears, and can search for where it went
+- **Extra columns** - change type, relative time, source folder,
+  session number, already-opened, locked status
+- **Brightness sliders** - fine-tune any theme's contrast without
+  picking new colors
+- **Bundled fonts** - JetBrains Mono and Fira Code ship with it, no
+  separate install
+- **Custom icons** - every panel entry's icon is swappable
+- **Sort order reset** - one click undoes an accidental column-click
+  sort
+
+This list grows as the plugin does - see Advanced configuration below
+for how each of these actually works, and Settings reference /
+Columns reference near the end for the exact ini keys.
 
 Close the tab, close Total Commander entirely, restart your machine -
 doesn't matter. Your recording history lives in its own file next to
@@ -288,20 +311,20 @@ download.
 
 ### Custom icons
 
-Every panel entry's icon can be overridden in `[Icons]` - a
-`shell32,<index>` reference, or your own `.ico`/`.exe`/`.dll` (a
-relative path like `icons\age.ico`, used below, resolves against this
-ini's own folder). Left blank or pointing at something that doesn't
-produce an icon, each entry falls back safely to its built-in default -
-no hardcoded system icon index can be guaranteed to look right on every
-Windows version, so this is the actual answer to that rather than a
-fixed guess:
+All ten panel entries ship with their own matching icon as an active
+default already (see `icons\` and the `[Icons]` section of
+`RecentTab_example.ini`) - the same orange-ring, blue-symbol family
+throughout, each shape reflecting what its entry does. Every one is a
+plain override in `[Icons]`, pointing at your own `.ico`/`.exe`/`.dll`
+instead if you'd rather - a relative path like `icons\age.ico`
+resolves against this ini's own folder:
 
 ```ini
 [Icons]
-MenuIcon=icons\menu.ico
 AgeIcon=icons\age.ico
 ```
+
+See Settings reference → Paths for the complete list of all ten keys.
 
 ### Search - find something in your own history, fast
 
@@ -447,6 +470,73 @@ not separately. See `notes/lost-files/` for the fuller reasoning,
 including why a couple of more ambitious approaches (a live background
 watcher, reading the Recycle Bin) were considered and set aside.
 
+## Settings reference
+
+Every setting that exists, in one place - grouped the same way as
+`RecentTab_example.ini` itself (function switches, colors, paths), so
+this list and that file always match. The narrative sections above
+explain the *why*; this is the *what*, kept intentionally terse. New
+settings get one line added here, nothing else rewritten.
+
+**Function switches**
+
+| Setting | What it does |
+|---|---|
+| `ConfirmReset` | Ask "really reset?" before clearing history |
+| `SortDescending` | Newest-first (1) or oldest-first (0) |
+| `DebugLogging` | Write `RecentTab_debug.log` - off before sharing a build |
+| `Language` | UI language, matches a section in `RecentTab_lang.ini` |
+| `IncludeDefaultFolders` | Add your own `[Watched:...]` blocks to the six defaults instead of replacing them |
+| `RootButtons` | Which utility entries sit at the root instead of inside `! menu` |
+| `UseSearch` | 0 hides `! Search` entirely |
+| `ShowLiveClock` | Ticking clock in the Alt+Enter title bar |
+| `OnlyExtensions` | Global allowlist of extensions - overrides every exclude while set |
+| `ShowChangeType` / `ShowRelativeTime` / `ShowSourceFolder` / `ShowSession` / `ShowOpened` / `ShowLocked` | The six extra columns - see Columns reference below |
+| `OpenedTracking` | `session` or `permanent` memory for `ShowOpened` |
+| `AllowDriveNetwork` / `AllowDriveRemovable` / `AllowDriveCDRom` | Let `ShowLocked` probe these drive types too |
+| `NoColors` | Plain system colors everywhere, no theme |
+| `AutoRefresh` | Panel re-reads itself automatically |
+| `AutoRefreshIntervalSec` | How often - minimum enforced 3s |
+| `AutoRefreshMaxIdleMin` | Skip auto-refresh once the system's been idle this long |
+| `FontBrightness` / `BackgroundBrightness` | Fine-tune the loaded theme, -3 to +3 |
+| `MonoFont` / `MonoFontName` | Which bundled (or your own) font the search window uses |
+| `TrackLostFiles` | Notice when a tracked file disappears |
+| `LostFilesTracking` | `session` or `permanent` memory for the Lost list |
+| `LostSearchStrict` | Require exact size+date match for "Search again" to confirm a find |
+
+**Colors** (`[Theme]`)
+
+| Setting | What it does |
+|---|---|
+| `Name` | `basic` / `gruvbox` / `everforest` / `solarized` / `custom` |
+| `Mode` | `dark` or `light` |
+| `TimeBasedMode` | Switch Mode automatically by the clock instead |
+| `LightStartHour` / `DarkStartHour` | The switch times, if TimeBasedMode=1 |
+| `Background` / `Foreground` / `Heading` / `Green` / `Accent2` / `Yellow` / `Accent4` / `Muted` | The eight color roles, only used when `Name=custom` |
+
+**Paths** (machine-specific - not meant to be shared/copied as-is)
+
+| Setting | What it does |
+|---|---|
+| `Path` (inside `[Watched:Name]`) | The folder itself |
+| `Exclude` | Sub-paths to skip inside that folder |
+| `ExcludeExtensions` | Extensions to skip inside that folder |
+| `RecIcon` / `ResetIcon` / `RefreshIcon` / `MenuIcon` / `AgeIcon` / `BackIcon` / `AutoRefreshIcon` / `SortResetIcon` / `LostIcon` / `FallbackIcon` | Per-entry icon overrides, all optional |
+
+## Columns reference
+
+All six live in `RecentTab.ini`, off by default, added to the panel
+afterward via TC's own Shift+F1 "Configure custom columns".
+
+| Column | Setting | Also works inside `! Lost` |
+|---|---|---|
+| Changed / New | `ShowChangeType=1` | Yes |
+| Relative time | `ShowRelativeTime=1` | Yes |
+| Source folder | `ShowSourceFolder=1` | Yes |
+| Session number | `ShowSession=1` | Yes |
+| Already opened | `ShowOpened=1` | Yes |
+| Locked status | `ShowLocked=1` | No - the file's already known to be gone, a lock check would only ever say "Not found" |
+
 ## Requirements
 
 - Windows 7 or newer, 32-bit or 64-bit Total Commander
@@ -459,9 +549,16 @@ watcher, reading the Recycle Bin) were considered and set aside.
 
 - `RecentTab.wfx` / `RecentTab.wfx64` - the plugin (TC picks the right
   one automatically if both are present)
-- `RecentTab.ini`, `RecentTab_lang.ini` - configuration and interface
-  text; **must stay in the same folder as the plugin file**, since it
-  looks them up relative to its own location, not TC's config folder
+- `RecentTab_example.ini` - a reference copy of every available
+  setting, shipped under this name (not `RecentTab.ini`) on purpose:
+  extracting an update never overwrites your own configuration this
+  way. Copy it, rename the copy to `RecentTab.ini`, and edit that copy -
+  the plugin looks for that exact filename, and works fine with sensible
+  defaults even before that file exists at all. After an update,
+  compare this file against your own `RecentTab.ini` for anything new.
+- `RecentTab_lang.ini` - interface text; **must stay in the same
+  folder as the plugin file**, since it's looked up relative to its own
+  location, not TC's config folder
 - `Color_ini_example.ini` - a template for adding another language
 - `icons\age.ico`, `icons\menu.ico` - the default icons for `! Search` and
   `! menu`, referenced via `[Icons]` - swap them for your own anytime,
@@ -484,6 +581,11 @@ archive once first, then double-click again.)
 Alternatively: extract it, or use the `release` folder from a source
 build, and double-click `pluginst.inf` - or add the .wfx manually via
 Configuration → Options → Plugins → File system plugins (WFX).
+
+First time only: copy `RecentTab_example.ini`, rename the copy to
+`RecentTab.ini`, in the same folder. Everything works with plain
+defaults even without that step - it just means there's nothing yet to
+edit if you want to change something.
 
 ## Building from source
 

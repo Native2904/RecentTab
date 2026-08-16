@@ -4,7 +4,7 @@ Ein Total-Commander-Dateisystem-Plugin (WFX), das kürzlich geänderte
 Dateien als virtuelles Panel anzeigt - ähnlich der "Zuletzt benutzt"-
 Ansicht des macOS Finders.
 
-<img width="1916" height="886" alt="2026-08-16_190206" src="https://github.com/user-attachments/assets/ffb9bfb5-8ff9-49d2-8024-bedf05098444" />
+![RecentTab Screenshot](https://raw.githubusercontent.com/Native2904/RecentTab/401f106849b2704410123273c37a39fb2bbb4be2/2026-08-03_153508.png)
 
 ## Was es kann
 
@@ -21,6 +21,32 @@ Laufzeit-Zähler. Das Panel selbst bleibt bei zwei Einträgen oben:
 (Reset, Refresh und die Suche weiter unten) - die eigentliche
 Dateiliste muss sich also nie den Platz mit einer Reihe von Buttons
 teilen.
+
+Auf einen Blick:
+
+- **Aufzeichnung** - einfacher Ein/Aus-Schalter, übersteht Neustarts,
+  eigener Laufzeit-Zähler
+- **Suche** - in jeden vergangenen Zeitraum springen, nicht nur
+  "kürzlich"
+- **Sechs Farb-Themes** - hell/dunkel, oder automatisch nach Uhrzeit
+- **Auto-Refresh** - das Panel aktualisiert sich nach Zeitplan selbst,
+  kein manuelles `Strg+R` nötig
+- **Verlorene Dateien** - merkt, wenn etwas Beobachtetes verschwindet,
+  und kann suchen, wohin es gewandert ist
+- **Zusatzspalten** - Änderungsart, relative Zeit, Quellordner,
+  Session-Nummer, bereits geöffnet, Sperrstatus
+- **Helligkeitsregler** - jedes Theme nachjustieren, ohne neue Farben
+  zu wählen
+- **Mitgelieferte Schriften** - JetBrains Mono und Fira Code liegen
+  bei, keine separate Installation nötig
+- **Eigene Icons** - jedes Panel-Icon austauschbar
+- **Sortierung zurücksetzen** - ein Klick macht eine versehentliche
+  Spalten-Sortierung rückgängig
+
+Diese Liste wächst mit dem Plugin mit - wie jede dieser Funktionen im
+Detail funktioniert, steht unten bei "Erweiterte Konfiguration", die
+genauen ini-Schlüssel in der Einstellungs-Referenz / Spalten-Referenz
+weiter unten.
 
 Der Zustand liegt in einer eigenen Datei neben dem Plugin, nicht im
 Arbeitsspeicher. Tab versehentlich geschlossen, Total Commander beendet,
@@ -290,21 +316,21 @@ müsste) und einzeln über `AllowDriveNetwork=`, `AllowDriveRemovable=`,
 
 ### Eigene Icons
 
-Jedes Icon der Panel-Einträge lässt sich über `[Icons]` überschreiben -
-entweder ein Verweis auf `shell32,<Index>`, oder eine eigene
-`.ico`/`.exe`/`.dll` (ein relativer Pfad wie `icons\age.ico`, wie unten
-verwendet, wird relativ zum Ordner dieser ini aufgelöst). Leer gelassen
-oder zeigt's auf etwas, das kein Icon liefert, fällt jeder Eintrag
-sicher auf seinen eingebauten Standard zurück - kein fest codierter
-Systemsymbol-Index lässt sich garantiert auf jeder Windows-Version
-korrekt darstellen, das hier ist die tatsächliche Antwort darauf statt
-einer weiteren Vermutung:
+Alle zehn Panel-Einträge liefern bereits ein eigenes, passendes Icon
+als aktiven Standard mit (siehe `icons\` und den `[Icons]`-Abschnitt
+von `RecentTab_example.ini`) - dieselbe Orange-Ring/Blaues-Symbol-
+Familie durchweg, jede Form spiegelt, was ihr Eintrag tut. Jedes davon
+ist eine einfache Überschreibung in `[Icons]`, zeigt stattdessen
+lieber auf die eigene `.ico`/`.exe`/`.dll` - ein relativer Pfad wie
+`icons\age.ico` wird relativ zum Ordner dieser ini aufgelöst:
 
 ```ini
 [Icons]
-MenuIcon=icons\menu.ico
 AgeIcon=icons\age.ico
 ```
+
+Die vollständige Liste aller zehn Schlüssel steht in der
+Einstellungs-Referenz → Pfade.
 
 ### Suche — schnell in der eigenen Historie finden
 
@@ -460,6 +486,74 @@ Siehe `notes/lost-files/` für die ausführlichere Begründung, inklusive
 warum zwei ambitioniertere Ansätze (ein Live-Hintergrundbeobachter, den
 Papierkorb auslesen) erwogen und wieder verworfen wurden.
 
+## Einstellungs-Referenz
+
+Jede existierende Einstellung an einem Ort - gruppiert genauso wie
+`RecentTab_example.ini` selbst (Funktionsschalter, Farben, Pfade),
+damit diese Liste und die Datei immer zueinander passen. Die
+Erzählabschnitte oben erklären das *Warum*; das hier ist das *Was*,
+bewusst knapp gehalten. Neue Einstellungen bekommen eine Zeile hier
+dazu, sonst wird nichts umgeschrieben.
+
+**Funktionsschalter**
+
+| Einstellung | Was sie tut |
+|---|---|
+| `ConfirmReset` | Vor dem Zurücksetzen "wirklich?" nachfragen |
+| `SortDescending` | Neueste zuerst (1) oder älteste zuerst (0) |
+| `DebugLogging` | `RecentTab_debug.log` schreiben - vor dem Weitergeben aus |
+| `Language` | Oberflächensprache, passt zu einer Sektion in `RecentTab_lang.ini` |
+| `IncludeDefaultFolders` | Eigene `[Watched:...]`-Blöcke zu den sechs Standardordnern hinzufügen statt ersetzen |
+| `RootButtons` | Welche Utility-Einträge an der Wurzel stehen statt in `! menu` |
+| `UseSearch` | 0 blendet `! Suche` komplett aus |
+| `ShowLiveClock` | Tickende Uhr im Alt+Enter-Fenstertitel |
+| `OnlyExtensions` | Globale Erlaubnisliste für Endungen - hebelt jeden Ausschluss aus, solange gesetzt |
+| `ShowChangeType` / `ShowRelativeTime` / `ShowSourceFolder` / `ShowSession` / `ShowOpened` / `ShowLocked` | Die sechs Zusatzspalten - siehe Spalten-Referenz unten |
+| `OpenedTracking` | `session`- oder `permanent`-Gedächtnis für `ShowOpened` |
+| `AllowDriveNetwork` / `AllowDriveRemovable` / `AllowDriveCDRom` | Lässt `ShowLocked` auch diese Laufwerkstypen prüfen |
+| `NoColors` | Überall reine Systemfarben, kein Theme |
+| `AutoRefresh` | Panel liest sich automatisch neu ein |
+| `AutoRefreshIntervalSec` | Wie oft - Untergrenze 3s erzwungen |
+| `AutoRefreshMaxIdleMin` | Auto-Refresh aussetzen, sobald das System so lange untätig war |
+| `FontBrightness` / `BackgroundBrightness` | Geladenes Theme nachjustieren, -3 bis +3 |
+| `MonoFont` / `MonoFontName` | Welche mitgelieferte (oder eigene) Schrift das Suchfenster nutzt |
+| `TrackLostFiles` | Bemerken, wenn eine beobachtete Datei verschwindet |
+| `LostFilesTracking` | `session`- oder `permanent`-Gedächtnis für die Lost-Liste |
+| `LostSearchStrict` | Exakte Größe/Datum-Übereinstimmung verlangen, damit "Erneut suchen" einen Fund bestätigt |
+
+**Farben** (`[Theme]`)
+
+| Einstellung | Was sie tut |
+|---|---|
+| `Name` | `basic` / `gruvbox` / `everforest` / `solarized` / `custom` |
+| `Mode` | `dark` oder `light` |
+| `TimeBasedMode` | Mode stattdessen automatisch nach Uhrzeit umschalten |
+| `LightStartHour` / `DarkStartHour` | Die Umschaltzeiten, falls TimeBasedMode=1 |
+| `Background` / `Foreground` / `Heading` / `Green` / `Accent2` / `Yellow` / `Accent4` / `Muted` | Die acht Farbrollen, nur bei `Name=custom` genutzt |
+
+**Pfade** (maschinenspezifisch - nicht zum unveränderten Teilen/Kopieren gedacht)
+
+| Einstellung | Was sie tut |
+|---|---|
+| `Path` (innerhalb `[Watched:Name]`) | Der Ordner selbst |
+| `Exclude` | Unterpfade, die in diesem Ordner übersprungen werden |
+| `ExcludeExtensions` | Endungen, die in diesem Ordner übersprungen werden |
+| `RecIcon` / `ResetIcon` / `RefreshIcon` / `MenuIcon` / `AgeIcon` / `BackIcon` / `AutoRefreshIcon` / `SortResetIcon` / `LostIcon` / `FallbackIcon` | Icon-Überschreibungen pro Eintrag, alle optional |
+
+## Spalten-Referenz
+
+Alle sechs liegen in `RecentTab.ini`, standardmäßig aus, danach über
+TCs eigenes Shift+F1 "Configure custom columns" zum Panel hinzugefügt.
+
+| Spalte | Einstellung | Funktioniert auch in `! Lost` |
+|---|---|---|
+| Geändert / Neu | `ShowChangeType=1` | Ja |
+| Relative Zeit | `ShowRelativeTime=1` | Ja |
+| Quellordner | `ShowSourceFolder=1` | Ja |
+| Session-Nummer | `ShowSession=1` | Ja |
+| Bereits geöffnet | `ShowOpened=1` | Ja |
+| Sperrstatus | `ShowLocked=1` | Nein - die Datei ist schon bekanntermaßen weg, ein Sperr-Check würde immer nur "Nicht gefunden" liefern |
+
 ## Voraussetzungen
 
 - Windows 7 oder neuer, Total Commander 32-Bit oder 64-Bit
@@ -472,10 +566,18 @@ Papierkorb auslesen) erwogen und wieder verworfen wurden.
 
 - `RecentTab.wfx` / `RecentTab.wfx64` - das Plugin (TC wählt automatisch
   die passende, falls beide vorhanden sind)
-- `RecentTab.ini`, `RecentTab_lang.ini` - Konfiguration und
-  Oberflächentexte; müssen im selben Ordner wie die Plugin-Datei
-  liegen, da sie relativ zum eigenen Speicherort gesucht werden, nicht
-  in TCs Konfigurationsordner
+- `RecentTab_example.ini` - eine Referenzkopie aller verfügbaren
+  Einstellungen, bewusst unter diesem Namen ausgeliefert (nicht
+  `RecentTab.ini`): Ein Update entpacken überschreibt so nie die eigene
+  Konfiguration. Diese Datei kopieren, die Kopie in `RecentTab.ini`
+  umbenennen, und diese Kopie bearbeiten - das Plugin sucht genau
+  diesen Dateinamen, funktioniert aber auch mit sinnvollen
+  Standardwerten, selbst bevor diese Datei überhaupt existiert. Nach
+  einem Update: diese Datei gegen die eigene `RecentTab.ini`
+  vergleichen, um Neues zu finden.
+- `RecentTab_lang.ini` - Oberflächentexte; muss im selben Ordner wie
+  die Plugin-Datei liegen, da relativ zum eigenen Speicherort gesucht,
+  nicht in TCs Konfigurationsordner
 - `Color_ini_example.ini` - eine Vorlage zum Hinzufügen einer weiteren
   Sprache
 - `icons\age.ico`, `icons\menu.ico` - die Standard-Icons für `! Search`
@@ -502,6 +604,11 @@ Alternativ: entpacken, oder den `release`-Ordner aus einem
 Quellcode-Build nehmen, dort auf `pluginst.inf` doppelklicken - oder
 die .wfx manuell über Konfigurieren → Einstellungen → Plugins →
 Dateisystem-Plugins (WFX) hinzufügen.
+
+Nur beim ersten Mal nötig: `RecentTab_example.ini` kopieren, die Kopie
+in `RecentTab.ini` umbenennen, im selben Ordner. Alles funktioniert
+auch ohne diesen Schritt mit reinen Standardwerten - dann gibt's nur
+noch nichts zum Bearbeiten, falls man was ändern möchte.
 
 ## Aus dem Quellcode bauen
 
