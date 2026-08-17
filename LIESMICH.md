@@ -4,7 +4,7 @@ Ein Total-Commander-Dateisystem-Plugin (WFX), das kürzlich geänderte
 Dateien als virtuelles Panel anzeigt - ähnlich der "Zuletzt benutzt"-
 Ansicht des macOS Finders.
 
-<img width="1913" height="861" alt="2026-08-16_223936" src="https://github.com/user-attachments/assets/205ef698-ff7a-4b90-b05a-48eb5deb68e4" />
+![RecentTab Screenshot](https://raw.githubusercontent.com/Native2904/RecentTab/401f106849b2704410123273c37a39fb2bbb4be2/2026-08-03_153508.png)
 
 ## Was es kann
 
@@ -124,6 +124,9 @@ BackgroundBrightness=0 ; -3 bis +3, Hintergrundfarbe des geladenen Themes feinju
 AutoRefresh=0          ; 1 = Panel automatisch neu einlesen, statt Strg+R zu brauchen
 AutoRefreshIntervalSec=600  ; nur relevant bei AutoRefresh=1 - Untergrenze von 3s wird erzwungen
 ;AutoRefreshMaxIdleMin=0     ; 0 = aus; sonst Auto-Refresh aussetzen, wenn das System so lange unbenutzt war
+;QuietHoursStart=22:00       ; kein Auto-Refresh zwischen diesen beiden Uhrzeiten (z. B. nachts)
+;QuietHoursEnd=07:00
+;AutoRefreshSkipOnBattery=0  ; 1 = Auto-Refresh im Akkubetrieb aussetzen
 MonoFont=fonts\JetBrainsMono-Regular.ttf   ; Schriftart der Suchfenster-Felder - siehe "Mitgelieferte Schriften" unten
 MonoFontName=JetBrains Mono
 
@@ -400,6 +403,9 @@ damit im Hintergrund nichts Überraschendes passiert:
   aktualisiert nie ein Panel, das man gerade gar nicht anschaut
 - `AutoRefreshMaxIdleMin=` - setzt aus, sobald das System so lange
   unbenutzt war (Maus/Tastatur-Ruhe, nicht nur TC selbst)
+- `QuietHoursStart=`/`QuietHoursEnd=` - ein Zeitfenster ganz ohne
+  Auto-Refresh, z. B. nachts
+- `AutoRefreshSkipOnBattery=1` - setzt im Akkubetrieb aus
 
 Der Alt+Enter-Dialog zeigt, was beim letzten Tick tatsächlich passiert
 ist - nicht nur "es lief", sondern ob die Datenabfrage selbst
@@ -515,6 +521,8 @@ dazu, sonst wird nichts umgeschrieben.
 | `AutoRefresh` | Panel liest sich automatisch neu ein |
 | `AutoRefreshIntervalSec` | Wie oft - Untergrenze 3s erzwungen |
 | `AutoRefreshMaxIdleMin` | Auto-Refresh aussetzen, sobald das System so lange untätig war |
+| `QuietHoursStart` / `QuietHoursEnd` | Kein Auto-Refresh zwischen diesen beiden Uhrzeiten (z. B. nachts) |
+| `AutoRefreshSkipOnBattery` | Auto-Refresh im Akkubetrieb aussetzen |
 | `FontBrightness` / `BackgroundBrightness` | Geladenes Theme nachjustieren, -3 bis +3 |
 | `MonoFont` / `MonoFontName` | Welche mitgelieferte (oder eigene) Schrift das Suchfenster nutzt |
 | `TrackLostFiles` | Bemerken, wenn eine beobachtete Datei verschwindet |

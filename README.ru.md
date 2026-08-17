@@ -4,7 +4,7 @@
 недавно изменённые файлы в виде виртуальной панели - похоже на
 вкладку "Недавние" в macOS Finder.
 
-<img width="1913" height="861" alt="2026-08-16_223936" src="https://github.com/user-attachments/assets/205ef698-ff7a-4b90-b05a-48eb5deb68e4" />
+![Скриншот RecentTab](https://raw.githubusercontent.com/Native2904/RecentTab/401f106849b2704410123273c37a39fb2bbb4be2/2026-08-03_153508.png)
 
 ## Что умеет плагин
 
@@ -129,6 +129,9 @@ BackgroundBrightness=0 ; -3 до +3, тонкая настройка яркос�
 AutoRefresh=0          ; 1 = автоматически перечитывать панель вместо Strg+R
 AutoRefreshIntervalSec=600  ; актуально только при AutoRefresh=1 - минимум 3с принудительно
 ;AutoRefreshMaxIdleMin=0     ; 0 = выкл; иначе пропускать автообновление, если система простаивает так долго
+;QuietHoursStart=22:00       ; без автообновления между этими двумя временами (например, ночью)
+;QuietHoursEnd=07:00
+;AutoRefreshSkipOnBattery=0  ; 1 = пропускать автообновление при работе от батареи
 MonoFont=fonts\JetBrainsMono-Regular.ttf   ; шрифт полей окна поиска - см. "Встроенные шрифты" ниже
 MonoFontName=JetBrains Mono
 
@@ -403,6 +406,9 @@ Enter на этой записи циклически переключает В�
   смотрите
 - `AutoRefreshMaxIdleMin=` - пропускает, если система простаивает так
   долго (без движения мыши/клавиатуры, не только TC)
+- `QuietHoursStart=`/`QuietHoursEnd=` - временное окно без
+  автообновления вообще, например ночью
+- `AutoRefreshSkipOnBattery=1` - пропускает при работе от батареи
 
 Диалог Alt+Enter показывает, что реально произошло на последнем
 тике - не просто "сработало", а удался ли сам запрос данных, нашёл ли
@@ -518,6 +524,8 @@ Everything точное имя файла по всей системе, без �
 | `AutoRefresh` | Панель перечитывает себя автоматически |
 | `AutoRefreshIntervalSec` | Как часто - минимум принудительно 3с |
 | `AutoRefreshMaxIdleMin` | Пропускать автообновление, если система простаивает так долго |
+| `QuietHoursStart` / `QuietHoursEnd` | Без автообновления между этими двумя временами (например, ночью) |
+| `AutoRefreshSkipOnBattery` | Пропускать автообновление при работе от батареи |
 | `FontBrightness` / `BackgroundBrightness` | Тонкая настройка загруженной темы, от -3 до +3 |
 | `MonoFont` / `MonoFontName` | Какой встроенный (или свой) шрифт использует окно поиска |
 | `TrackLostFiles` | Замечать, когда отслеживаемый файл исчезает |

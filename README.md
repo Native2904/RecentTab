@@ -3,8 +3,7 @@
 A Total Commander WFX (File System) plugin that shows recently modified
 files as a virtual panel - similar to macOS Finder's "Recents" view.
 
-<img width="1913" height="861" alt="2026-08-16_223936" src="https://github.com/user-attachments/assets/205ef698-ff7a-4b90-b05a-48eb5deb68e4" />
-
+![RecentTab screenshot](https://raw.githubusercontent.com/Native2904/RecentTab/401f106849b2704410123273c37a39fb2bbb4be2/2026-08-03_153508.png)
 
 ## What it can do
 
@@ -125,6 +124,9 @@ BackgroundBrightness=0 ; -3 to +3, fine-tune the loaded theme's background brigh
 AutoRefresh=0          ; 1 = re-read the panel automatically instead of needing Strg+R
 AutoRefreshIntervalSec=600  ; only relevant if AutoRefresh=1 - minimum enforced is 3s
 ;AutoRefreshMaxIdleMin=0     ; 0 = disabled; otherwise skip auto-refresh once the system's been unused this long
+;QuietHoursStart=22:00       ; no auto-refresh between these two times (e.g. overnight)
+;QuietHoursEnd=07:00
+;AutoRefreshSkipOnBattery=0  ; 1 = skip auto-refresh while running on battery power
 MonoFont=fonts\JetBrainsMono-Regular.ttf   ; the search window's field font - see "Bundled fonts" below
 MonoFontName=JetBrains Mono
 
@@ -393,6 +395,9 @@ anything surprising in the background:
   never re-reads a panel you're not looking at
 - `AutoRefreshMaxIdleMin=` - skips it once the system's been unused
   this long (mouse/keyboard idle, not just TC idle)
+- `QuietHoursStart=`/`QuietHoursEnd=` - a time window with no
+  auto-refresh at all, e.g. overnight
+- `AutoRefreshSkipOnBattery=1` - skips it while running on battery
 
 The Alt+Enter dialog shows what actually happened on the last tick -
 not just "it ran," but whether the data query itself succeeded, found
@@ -499,6 +504,8 @@ settings get one line added here, nothing else rewritten.
 | `AutoRefresh` | Panel re-reads itself automatically |
 | `AutoRefreshIntervalSec` | How often - minimum enforced 3s |
 | `AutoRefreshMaxIdleMin` | Skip auto-refresh once the system's been idle this long |
+| `QuietHoursStart` / `QuietHoursEnd` | No auto-refresh between these two times (e.g. overnight) |
+| `AutoRefreshSkipOnBattery` | Skip auto-refresh while running on battery power |
 | `FontBrightness` / `BackgroundBrightness` | Fine-tune the loaded theme, -3 to +3 |
 | `MonoFont` / `MonoFontName` | Which bundled (or your own) font the search window uses |
 | `TrackLostFiles` | Notice when a tracked file disappears |
