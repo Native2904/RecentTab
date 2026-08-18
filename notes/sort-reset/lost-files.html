@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>RecentTab – Lost Files</title>
+<style>
+  :root {
+    --background: #2B2A27;
+    --foreground: #EDE0CE;
+    --heading:    #D68F41;
+    --green:      #39B81F;
+    --accent2:    #00A8C6;
+    --yellow:     #EBB626;
+    --accent4:    #D63131;
+    --muted:      #7A7267;
+  }
+  html, body {
+    margin: 0;
+    background: #1c1b19;
+    font-family: -apple-system, "Segoe UI", sans-serif;
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+  .sheet {
+    max-width: 620px;
+    background: var(--background);
+    color: var(--foreground);
+    border-radius: 6px;
+    padding: 36px 40px;
+    line-height: 1.6;
+    box-shadow: 0 20px 60px rgba(0,0,0,.5);
+  }
+  h1 { color: var(--heading); font-size: 20px; margin: 0 0 4px; }
+  .sub { color: var(--muted); font-size: 13px; margin: 0 0 28px; }
+  h2 { color: var(--yellow); font-size: 14px; text-transform: uppercase; letter-spacing: .05em; margin: 28px 0 10px; }
+  p { margin: 0 0 12px; font-size: 15px; }
+  code { background: rgba(0,0,0,.25); color: var(--accent2); padding: 1px 6px; border-radius: 3px; font-size: 13px; }
+  .fix { color: var(--green); font-weight: 600; }
+  .note { border-left: 3px solid var(--accent4); padding: 8px 14px; margin-top: 24px; color: var(--muted); font-size: 13px; }
+</style>
+</head>
+<body>
+  <div class="sheet">
+    <h1>Lost Files</h1>
+    <p class="sub">notes/lost-files/ — note</p>
+
+    <h2>Problem</h2>
+    <p>
+      RecentTab shows what's new. But what about something disappearing
+      again - deleted, moved, renamed? Until now: nothing at all. The
+      file was there, then it wasn't, without a trace.
+    </p>
+
+    <h2>What we deliberately didn't build</h2>
+    <p>
+      A genuine live watcher (Windows can do this, via
+      <code>ReadDirectoryChangesW</code>) would have reported every
+      deletion instantly. That would need its own, permanently running
+      background process per folder - clearly more effort than the
+      benefit justifies here.
+    </p>
+    <p>
+      We also looked at the Recycle Bin. Possible in theory, but deleted
+      files land there under mangled names, the real name only sits
+      hidden inside an index file. And permanent deletions
+      (Shift+Delete) never show up there at all.
+    </p>
+
+    <h2>The solution</h2>
+    <p>
+      <span class="fix">Simple comparison</span>: on every normal
+      refresh, the new list gets compared against the last one.
+      Whatever's missing counts as "lost" - without claiming to know
+      whether it was deleted, moved, or renamed. We simply don't know
+      that, and we don't pretend to.
+    </p>
+    <p>
+      Not a live event, but a window: "was there at the last refresh,
+      isn't now." With a 5-minute interval, that means sometime in the
+      last 5 minutes, not down to the second.
+    </p>
+    <p>
+      For each lost entry, whatever was known at the moment it was last
+      seen stays around: name, size, modified and created dates, which
+      watched folder, which recording session. A small dedicated window
+      shows this - TC's normal properties dialog would just fail, the
+      file doesn't exist anymore.
+    </p>
+
+    <h2>The search-again button</h2>
+    <p>
+      Maybe the file isn't gone at all, just moved. One click asks
+      Everything system-wide for the exact name - no folder
+      restriction, deliberately. If something turns up, the text in the
+      same window just gets appended to, nothing new opens. If nothing
+      turns up, it was likely a genuine deletion.
+    </p>
+    <p>
+      A matching name alone proves nothing though - <code>README.md</code>
+      could exist in a dozen unrelated folders. So <span class="fix">strict</span>
+      by default: only a match with the exact same size <em>and</em> the
+      exact same modified date counts as confirmed.
+      <code>LostSearchStrict=0</code> turns that off, for the case where
+      the file was edited again after moving - size and date would have
+      genuinely changed then, and the strict check would wrongly doubt a
+      real match.
+    </p>
+
+    <h2>Open in TC</h2>
+    <p>
+      Select some text in the info window, click "Open selection in
+      TC" - and exactly that selected piece opens as a new tab in the
+      opposite panel. Deliberately <em>selectable</em>, not just the
+      whole path at once: paths are hierarchical, sometimes you want to
+      jump three levels up and look around yourself, not straight to the
+      (possibly no-longer-existing) original folder.
+    </p>
+    <p>
+      Runs through an officially documented command-line call
+      (<code>totalcmd.exe /O /T /L=</code> or <code>/R=</code>), not an
+      internal TC message - no reliable, documented way to do it that
+      way was ever found. Three settings make the behavior adjustable
+      instead of locking in the one approach built first:
+      <code>LostOpenTarget</code> (opposite or active panel),
+      <code>LostOpenMode</code> (new tab or replace the current one),
+      <code>LostOpenNewWindow</code> (a separate TC instance instead of
+      the running one).
+    </p>
+
+    <div class="note">
+      Lost files are tied to the recording history they came from - a
+      reset clears both together, not just the history. A currently
+      active recording is deliberately <em>not</em> stopped by this,
+      only its start time jumps to now - otherwise files already shown
+      before the reset would immediately get reported as "lost" again,
+      since the comparison would still find them in the old, otherwise
+      discarded list.
+    </div>
+  </div>
+</body>
+</html>

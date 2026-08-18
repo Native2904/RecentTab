@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>RecentTab – Verlorene Dateien</title>
+<style>
+  :root {
+    --background: #2B2A27;
+    --foreground: #EDE0CE;
+    --heading:    #D68F41;
+    --green:      #39B81F;
+    --accent2:    #00A8C6;
+    --yellow:     #EBB626;
+    --accent4:    #D63131;
+    --muted:      #7A7267;
+  }
+  html, body {
+    margin: 0;
+    background: #1c1b19;
+    font-family: -apple-system, "Segoe UI", sans-serif;
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+  .sheet {
+    max-width: 620px;
+    background: var(--background);
+    color: var(--foreground);
+    border-radius: 6px;
+    padding: 36px 40px;
+    line-height: 1.6;
+    box-shadow: 0 20px 60px rgba(0,0,0,.5);
+  }
+  h1 { color: var(--heading); font-size: 20px; margin: 0 0 4px; }
+  .sub { color: var(--muted); font-size: 13px; margin: 0 0 28px; }
+  h2 { color: var(--yellow); font-size: 14px; text-transform: uppercase; letter-spacing: .05em; margin: 28px 0 10px; }
+  p { margin: 0 0 12px; font-size: 15px; }
+  code { background: rgba(0,0,0,.25); color: var(--accent2); padding: 1px 6px; border-radius: 3px; font-size: 13px; }
+  .fix { color: var(--green); font-weight: 600; }
+  .note { border-left: 3px solid var(--accent4); padding: 8px 14px; margin-top: 24px; color: var(--muted); font-size: 13px; }
+</style>
+</head>
+<body>
+  <div class="sheet">
+    <h1>Verlorene Dateien</h1>
+    <p class="sub">notes/lost-files/ — Handbrief</p>
+
+    <h2>Problem</h2>
+    <p>
+      RecentTab zeigt, was neu dazugekommen ist. Aber was, wenn etwas
+      wieder verschwindet — gelöscht, verschoben, umbenannt? Bisher: gar
+      nichts. Die Datei war da, dann nicht mehr, ohne jede Spur.
+    </p>
+
+    <h2>Was wir bewusst nicht gebaut haben</h2>
+    <p>
+      Ein echter Live-Beobachter (Windows kann das, über
+      <code>ReadDirectoryChangesW</code>) hätte jede Löschung sofort
+      gemeldet. Dafür bräuchte es einen eigenen, dauerhaft laufenden
+      Hintergrundprozess pro Ordner — deutlich mehr Aufwand, als der
+      Nutzen hier rechtfertigt.
+    </p>
+    <p>
+      Auch den Papierkorb haben wir uns angesehen. Geht theoretisch,
+      aber gelöschte Dateien landen dort unter verschleierten Namen, der
+      echte Name steckt nur versteckt in einer Indexdatei. Und
+      endgültige Löschungen (Shift+Löschen) tauchen dort ohnehin nie
+      auf.
+    </p>
+
+    <h2>Die Lösung</h2>
+    <p>
+      <span class="fix">Einfacher Vergleich</span>: Bei jeder normalen
+      Aktualisierung wird die neue Liste mit der letzten verglichen.
+      Was fehlt, gilt als "verloren" — ohne zu behaupten, ob's gelöscht,
+      verschoben oder umbenannt wurde. Das wissen wir schlicht nicht,
+      und wir tun nicht so als ob.
+    </p>
+    <p>
+      Kein Live-Ereignis, sondern ein Zeitraum: "war beim letzten
+      Refresh noch da, ist jetzt weg". Bei einem 5-Minuten-Intervall
+      heißt das: irgendwann in den letzten 5 Minuten, nicht auf die
+      Sekunde genau.
+    </p>
+    <p>
+      Für jeden verlorenen Eintrag bleibt erhalten, was im Moment des
+      letzten Sehens bekannt war: Name, Größe, Änderungs- und
+      Erstelldatum, aus welchem beobachteten Ordner, aus welcher
+      Aufzeichnungssitzung. Ein eigenes kleines Fenster zeigt das —
+      TCs normaler Eigenschaften-Dialog würde ja ins Leere laufen, die
+      Datei existiert nicht mehr.
+    </p>
+
+    <h2>Der Wiederfinden-Knopf</h2>
+    <p>
+      Vielleicht ist die Datei gar nicht weg, nur verschoben. Ein Klick
+      fragt Everything systemweit nach dem exakten Namen — ohne
+      Ordner-Einschränkung, absichtlich. Findet sich was, wird nur der
+      Text im selben Fenster ergänzt, nichts Neues öffnet sich. Wird
+      nichts gefunden, war's vermutlich wirklich eine Löschung.
+    </p>
+    <p>
+      Ein gleicher Name allein beweist aber nichts — <code>README.md</code>
+      könnte in einem Dutzend unabhängiger Ordner existieren. Deshalb
+      standardmäßig <span class="fix">streng</span>: Nur ein Treffer mit
+      exakt gleicher Größe <em>und</em> exakt gleichem Änderungsdatum
+      gilt als bestätigt. <code>LostSearchStrict=0</code> schaltet das
+      ab, für den Fall, dass die Datei nach dem Verschieben nochmal
+      bearbeitet wurde — dann hätten sich Größe und Datum legitim
+      geändert, und der strenge Abgleich würde einen echten Treffer
+      fälschlich anzweifeln.
+    </p>
+
+    <h2>In TC öffnen</h2>
+    <p>
+      Text im Info-Fenster markieren, Klick auf "Auswahl in TC öffnen" —
+      und genau dieser markierte Ausschnitt öffnet sich als neuer Tab im
+      gegenüberliegenden Panel. Bewusst <em>markierbar</em>, nicht nur
+      der ganze Pfad auf einmal: Pfade sind hierarchisch, manchmal will
+      man drei Ebenen höher springen und selbst nachsehen, nicht exakt
+      zum (vielleicht nicht mehr existierenden) Originalordner.
+    </p>
+    <p>
+      Läuft über einen offiziell dokumentierten Kommandozeilenaufruf
+      (<code>totalcmd.exe /O /T /L=</code> bzw. <code>/R=</code>), nicht
+      über eine interne TC-Nachricht — dafür wurde nirgends eine
+      zuverlässige, dokumentierte Methode gefunden. Drei Schalter machen
+      das Verhalten anpassbar, statt den einen Weg fest vorzugeben, den
+      wir zuerst gebaut hatten: <code>LostOpenTarget</code> (gegenüberliegendes
+      oder aktives Panel), <code>LostOpenMode</code> (neuer Tab oder
+      aktuellen ersetzen), <code>LostOpenNewWindow</code> (eigene
+      TC-Instanz statt der laufenden).
+    </p>
+
+    <div class="note">
+      Verlorene Dateien hängen an der Aufzeichnungshistorie, aus der sie
+      stammen — ein Reset löscht beides zusammen, nicht nur den
+      Verlauf. Eine gerade laufende Aufzeichnung wird dabei bewusst
+      <em>nicht</em> mit beendet, nur ihr Startzeitpunkt springt auf
+      jetzt — sonst würden längst gezeigte Dateien nach dem Reset sofort
+      wieder als "verloren" gemeldet, weil der Vergleich sie in der
+      alten, eigentlich schon verworfenen Liste noch findet.
+    </div>
+  </div>
+</body>
+</html>
