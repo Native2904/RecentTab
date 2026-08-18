@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>RecentTab – Reset Sort Order</title>
+<style>
+  :root {
+    --background: #2B2A27;
+    --foreground: #EDE0CE;
+    --heading:    #D68F41;
+    --green:      #39B81F;
+    --accent2:    #00A8C6;
+    --yellow:     #EBB626;
+    --accent4:    #D63131;
+    --muted:      #7A7267;
+  }
+
+  html, body {
+    margin: 0;
+    background: #1c1b19;
+    font-family: -apple-system, "Segoe UI", sans-serif;
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+
+  .sheet {
+    max-width: 620px;
+    background: var(--background);
+    color: var(--foreground);
+    border-radius: 6px;
+    padding: 36px 40px;
+    line-height: 1.6;
+    box-shadow: 0 20px 60px rgba(0,0,0,.5);
+  }
+
+  h1 {
+    color: var(--heading);
+    font-size: 20px;
+    margin: 0 0 4px;
+  }
+
+  .sub {
+    color: var(--muted);
+    font-size: 13px;
+    margin: 0 0 28px;
+  }
+
+  h2 {
+    color: var(--yellow);
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    margin: 28px 0 10px;
+  }
+
+  p { margin: 0 0 12px; font-size: 15px; }
+
+  ul {
+    margin: 0 0 12px;
+    padding-left: 20px;
+    font-size: 14px;
+  }
+  ul li {
+    margin-bottom: 6px;
+    color: var(--foreground);
+  }
+  ul li::marker { color: var(--accent2); }
+
+  .fix {
+    color: var(--green);
+    font-weight: 600;
+  }
+
+  code {
+    background: rgba(0,0,0,.25);
+    color: var(--accent2);
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 13px;
+  }
+
+  .note {
+    border-left: 3px solid var(--accent4);
+    padding: 8px 14px;
+    margin-top: 24px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+</style>
+</head>
+<body>
+
+  <div class="sheet">
+    <h1>Reset Sort Order</h1>
+    <p class="sub">notes/sort-reset/ — note</p>
+
+    <h2>Problem</h2>
+    <p>
+      Clicking a column header in the panel makes Total Commander sort
+      it independently - regardless of whatever order RecentTab itself
+      intends. If Path then ends up as the active sort column, entries
+      suddenly group alphabetically by folder instead of by date,
+      without anything about the actual content having changed. Looks
+      like a bug in the plugin, but it's TC's own, independent
+      behavior.
+    </p>
+
+    <h2>Solution</h2>
+    <p>
+      <code>! Reset sort order</code> in the menu brings back
+      <span class="fix">RecentTab's own, intended order</span> with one
+      click - newest changes first, exactly as the plugin itself
+      provides them. No need to know TC's own sorting mechanics, no
+      hunting for the right column to Ctrl+click or Shift+click.
+    </p>
+
+    <h2>Reach</h2>
+    <p>
+      Affects the whole panel, not just whichever subfolder happens to
+      be visible right now - works from inside the menu itself too,
+      even while standing inside <code>! menu</code>, not just the main
+      view.
+    </p>
+    <ul>
+      <li>TC remembers sort order per panel by default, not per
+          folder</li>
+      <li>Changing folders itself has no dedicated storage for the sort
+          method</li>
+      <li>Only a specifically configured "View Mode" rule (not
+          something we use) would separate that per folder</li>
+      <li>So the reset sort order stays in effect even after leaving
+          <code>! menu</code></li>
+    </ul>
+
+    <h2>The TC command behind it</h2>
+    <p>
+      <code style="display:block; padding:10px 14px; margin:8px 0;">
+        cm_SrcUnsorted
+      </code>
+      "Source: Unsorted" - an official internal TC command. "Source"
+      means whichever panel is currently active, "Unsorted" discards
+      any clicked column sort and shows the order the source (here:
+      RecentTab itself) provides. Fired internally the exact same way
+      as <code>cm_RereadSource</code> for the refresh button - no new
+      mechanism, just a different command.
+    </p>
+
+    <div class="note">
+      Only affects the panel's display order. Doesn't touch the
+      recording itself, the watched folders, or any stored data.
+    </div>
+  </div>
+
+</body>
+</html>
