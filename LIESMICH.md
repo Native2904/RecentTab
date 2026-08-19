@@ -4,7 +4,7 @@ Ein Total-Commander-Dateisystem-Plugin (WFX), das kürzlich geänderte
 Dateien als virtuelles Panel anzeigt - ähnlich der "Zuletzt benutzt"-
 Ansicht des macOS Finders.
 
-<img width="1898" height="833" alt="2026-08-17_165715" src="https://github.com/user-attachments/assets/ca8289d1-e517-4f25-8b4f-0df08ba6c991" />
+<img width="1918" height="871" alt="2026-08-19_194513" src="https://github.com/user-attachments/assets/a3b07277-50fc-4f7b-a5dd-58d3426f92c4" />
 
 ## Was es kann
 
