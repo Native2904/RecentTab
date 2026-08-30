@@ -2,4 +2,3 @@
 type=wfx
 file=RecentTab.wfx
 description=RecentTab - shows recently modified files as a virtual panel
-version=1.5

@@ -4,7 +4,7 @@ Ein Total-Commander-Dateisystem-Plugin (WFX), das kürzlich geänderte
 Dateien als virtuelles Panel anzeigt - ähnlich der "Zuletzt benutzt"-
 Ansicht des macOS Finders.
 
-<img width="1918" height="871" alt="2026-08-19_194513" src="https://github.com/user-attachments/assets/a3b07277-50fc-4f7b-a5dd-58d3426f92c4" />
+![RecentTab Screenshot](https://raw.githubusercontent.com/Native2904/RecentTab/401f106849b2704410123273c37a39fb2bbb4be2/2026-08-03_153508.png)
 
 ## Was es kann
 
@@ -42,6 +42,8 @@ Auf einen Blick:
 - **Eigene Icons** - jedes Panel-Icon austauschbar
 - **Sortierung zurücksetzen** - ein Klick macht eine versehentliche
   Spalten-Sortierung rückgängig
+- **Ordnerbaum** - Alt+Enter auf `! menu` zeigt, wie sich die
+  beobachteten Ordner tatsächlich verzweigen, tote Pfade klar markiert
 
 Diese Liste wächst mit dem Plugin mit - wie jede dieser Funktionen im
 Detail funktioniert, steht unten bei "Erweiterte Konfiguration", die
@@ -315,7 +317,6 @@ Wechseldatenträger und optische Laufwerke sind standardmäßig aus
 müsste) und einzeln über `AllowDriveNetwork=`, `AllowDriveRemovable=`,
 `AllowDriveCDRom=` wieder einschaltbar. Cloud-Platzhalterdateien
 (OneDrive Files On-Demand und Ähnliches) werden komplett übersprungen
-
 - nie angefasst, sodass Durchblättern nie einen Download auslöst.
 
 ### Eigene Icons
@@ -493,6 +494,36 @@ Siehe `notes/lost-files/` für die ausführlichere Begründung, inklusive
 warum zwei ambitioniertere Ansätze (ein Live-Hintergrundbeobachter, den
 Papierkorb auslesen) erwogen und wieder verworfen wurden.
 
+### Ordnerbaum - sehen, wie sich die beobachteten Ordner tatsächlich verzweigen
+
+Alt+Enter auf `! menu` öffnet ein eigenständiges kleines Fenster
+(gleicher optischer Stil wie das Suchfenster - dünne Ränder, eigenes
+Theme, komplett losgelöst von TCs eigener Optik), das jeden
+beobachteten Ordner als Baum zeigt - rein aus den konfigurierten
+Pfaden aufgebaut, nicht aus irgendwas bereits Aufgezeichnetem.
+
+Ordner, die sich einen Elternordner teilen, werden automatisch darunter
+gruppiert, auch wenn dieser Elternordner selbst nicht beobachtet wird -
+reine visuelle Gruppierung, nichts zusätzlich erfasst. Eine Folge von
+Ordnern, die jeweils nur genau ein Kind haben - kein echtes Verzweigen
+unterwegs - wird zu einer einzigen Zeile zusammengefasst, statt fünf
+oder sechs eingerückte Ebenen zu zeigen, die keine zusätzliche
+Information tragen; liegen trotzdem Dateien direkt in einem dieser
+Durchgangs-Ordner, bleibt die Zählung genau an diesem Namen sichtbar,
+nicht durch die Zusammenfassung versteckt.
+
+Ein beobachteter Ordner, dessen Pfad nicht mehr existiert, bekommt ein
+eigenes, bewusst auffälliges Symbol (eine Straßensperre, nicht derselbe
+Geist wie bei einzelnen verlorenen Dateien anderswo - ein ganzer
+fehlender konfigurierter Ordner ist eine andere Situation als eine
+einzelne verschwundene Datei).
+
+Das Fenster wächst nicht über etwa eine Standard-Lister-Höhe hinaus (TC
+gibt Plugins keine Möglichkeit, die tatsächliche Größe abzufragen, das
+ist also eine Annäherung, keine echte Messung) - alles Höhere ist mit
+dem Mausrad scrollbar. Siehe `notes/folder-tree/` für die ausführlichere
+Begründung, inklusive warum dafür ausgerechnet GDI+ nötig war.
+
 ## Einstellungs-Referenz
 
 Jede existierende Einstellung an einem Ort - gruppiert genauso wie
@@ -504,64 +535,64 @@ dazu, sonst wird nichts umgeschrieben.
 
 **Funktionsschalter**
 
-| Einstellung                                                                                              | Was sie tut                                                                              |
-| -------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| `ConfirmReset`                                                                                           | Vor dem Zurücksetzen "wirklich?" nachfragen                                              |
-| `SortDescending`                                                                                         | Neueste zuerst (1) oder älteste zuerst (0)                                               |
-| `DebugLogging`                                                                                           | `RecentTab_debug.log` schreiben - vor dem Weitergeben aus                                |
-| `Language`                                                                                               | Oberflächensprache, passt zu einer Sektion in `RecentTab_lang.ini`                       |
-| `IncludeDefaultFolders`                                                                                  | Eigene `[Watched:...]`-Blöcke zu den sechs Standardordnern hinzufügen statt ersetzen     |
-| `RootButtons`                                                                                            | Welche Utility-Einträge an der Wurzel stehen statt in `! menu`                           |
-| `UseSearch`                                                                                              | 0 blendet `! Suche` komplett aus                                                         |
-| `ShowLiveClock`                                                                                          | Tickende Uhr im Alt+Enter-Fenstertitel                                                   |
-| `OnlyExtensions`                                                                                         | Globale Erlaubnisliste für Endungen - hebelt jeden Ausschluss aus, solange gesetzt       |
-| `ShowChangeType` / `ShowRelativeTime` / `ShowSourceFolder` / `ShowSession` / `ShowOpened` / `ShowLocked` | Die sechs Zusatzspalten - siehe Spalten-Referenz unten                                   |
-| `OpenedTracking`                                                                                         | `session`- oder `permanent`-Gedächtnis für `ShowOpened`                                  |
-| `AllowDriveNetwork` / `AllowDriveRemovable` / `AllowDriveCDRom`                                          | Lässt `ShowLocked` auch diese Laufwerkstypen prüfen                                      |
-| `NoColors`                                                                                               | Überall reine Systemfarben, kein Theme                                                   |
-| `AutoRefresh`                                                                                            | Panel liest sich automatisch neu ein                                                     |
-| `AutoRefreshIntervalSec`                                                                                 | Wie oft - Untergrenze 3s erzwungen                                                       |
-| `AutoRefreshMaxIdleMin`                                                                                  | Auto-Refresh aussetzen, sobald das System so lange untätig war                           |
-| `QuietHoursStart` / `QuietHoursEnd`                                                                      | Kein Auto-Refresh zwischen diesen beiden Uhrzeiten (z. B. nachts)                        |
-| `AutoRefreshSkipOnBattery`                                                                               | Auto-Refresh im Akkubetrieb aussetzen                                                    |
-| `FontBrightness` / `BackgroundBrightness`                                                                | Geladenes Theme nachjustieren, -3 bis +3                                                 |
-| `MonoFont` / `MonoFontName`                                                                              | Welche mitgelieferte (oder eigene) Schrift das Suchfenster nutzt                         |
-| `TrackLostFiles`                                                                                         | Bemerken, wenn eine beobachtete Datei verschwindet                                       |
-| `LostFilesTracking`                                                                                      | `session`- oder `permanent`-Gedächtnis für die Lost-Liste                                |
-| `LostSearchStrict`                                                                                       | Exakte Größe/Datum-Übereinstimmung verlangen, damit "Erneut suchen" einen Fund bestätigt |
+| Einstellung | Was sie tut |
+|---|---|
+| `ConfirmReset` | Vor dem Zurücksetzen "wirklich?" nachfragen |
+| `SortDescending` | Neueste zuerst (1) oder älteste zuerst (0) |
+| `DebugLogging` | `RecentTab_debug.log` schreiben - vor dem Weitergeben aus |
+| `Language` | Oberflächensprache, passt zu einer Sektion in `RecentTab_lang.ini` |
+| `IncludeDefaultFolders` | Eigene `[Watched:...]`-Blöcke zu den sechs Standardordnern hinzufügen statt ersetzen |
+| `RootButtons` | Welche Utility-Einträge an der Wurzel stehen statt in `! menu` |
+| `UseSearch` | 0 blendet `! Suche` komplett aus |
+| `ShowLiveClock` | Tickende Uhr im Alt+Enter-Fenstertitel |
+| `OnlyExtensions` | Globale Erlaubnisliste für Endungen - hebelt jeden Ausschluss aus, solange gesetzt |
+| `ShowChangeType` / `ShowRelativeTime` / `ShowSourceFolder` / `ShowSession` / `ShowOpened` / `ShowLocked` | Die sechs Zusatzspalten - siehe Spalten-Referenz unten |
+| `OpenedTracking` | `session`- oder `permanent`-Gedächtnis für `ShowOpened` |
+| `AllowDriveNetwork` / `AllowDriveRemovable` / `AllowDriveCDRom` | Lässt `ShowLocked` auch diese Laufwerkstypen prüfen |
+| `NoColors` | Überall reine Systemfarben, kein Theme |
+| `AutoRefresh` | Panel liest sich automatisch neu ein |
+| `AutoRefreshIntervalSec` | Wie oft - Untergrenze 3s erzwungen |
+| `AutoRefreshMaxIdleMin` | Auto-Refresh aussetzen, sobald das System so lange untätig war |
+| `QuietHoursStart` / `QuietHoursEnd` | Kein Auto-Refresh zwischen diesen beiden Uhrzeiten (z. B. nachts) |
+| `AutoRefreshSkipOnBattery` | Auto-Refresh im Akkubetrieb aussetzen |
+| `FontBrightness` / `BackgroundBrightness` | Geladenes Theme nachjustieren, -3 bis +3 |
+| `MonoFont` / `MonoFontName` | Welche mitgelieferte (oder eigene) Schrift das Suchfenster nutzt |
+| `TrackLostFiles` | Bemerken, wenn eine beobachtete Datei verschwindet |
+| `LostFilesTracking` | `session`- oder `permanent`-Gedächtnis für die Lost-Liste |
+| `LostSearchStrict` | Exakte Größe/Datum-Übereinstimmung verlangen, damit "Erneut suchen" einen Fund bestätigt |
 
 **Farben** (`[Theme]`)
 
-| Einstellung                                                                                    | Was sie tut                                                 |
-| ---------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
-| `Name`                                                                                         | `basic` / `gruvbox` / `everforest` / `solarized` / `custom` |
-| `Mode`                                                                                         | `dark` oder `light`                                         |
-| `TimeBasedMode`                                                                                | Mode stattdessen automatisch nach Uhrzeit umschalten        |
-| `LightStartHour` / `DarkStartHour`                                                             | Die Umschaltzeiten, falls TimeBasedMode=1                   |
-| `Background` / `Foreground` / `Heading` / `Green` / `Accent2` / `Yellow` / `Accent4` / `Muted` | Die acht Farbrollen, nur bei `Name=custom` genutzt          |
+| Einstellung | Was sie tut |
+|---|---|
+| `Name` | `basic` / `gruvbox` / `everforest` / `solarized` / `custom` |
+| `Mode` | `dark` oder `light` |
+| `TimeBasedMode` | Mode stattdessen automatisch nach Uhrzeit umschalten |
+| `LightStartHour` / `DarkStartHour` | Die Umschaltzeiten, falls TimeBasedMode=1 |
+| `Background` / `Foreground` / `Heading` / `Green` / `Accent2` / `Yellow` / `Accent4` / `Muted` | Die acht Farbrollen, nur bei `Name=custom` genutzt |
 
 **Pfade** (maschinenspezifisch - nicht zum unveränderten Teilen/Kopieren gedacht)
 
-| Einstellung                                                                                                                                       | Was sie tut                                          |
-| ------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
-| `Path` (innerhalb `[Watched:Name]`)                                                                                                               | Der Ordner selbst                                    |
-| `Exclude`                                                                                                                                         | Unterpfade, die in diesem Ordner übersprungen werden |
-| `ExcludeExtensions`                                                                                                                               | Endungen, die in diesem Ordner übersprungen werden   |
-| `RecIcon` / `ResetIcon` / `RefreshIcon` / `MenuIcon` / `AgeIcon` / `BackIcon` / `AutoRefreshIcon` / `SortResetIcon` / `LostIcon` / `FallbackIcon` | Icon-Überschreibungen pro Eintrag, alle optional     |
+| Einstellung | Was sie tut |
+|---|---|
+| `Path` (innerhalb `[Watched:Name]`) | Der Ordner selbst |
+| `Exclude` | Unterpfade, die in diesem Ordner übersprungen werden |
+| `ExcludeExtensions` | Endungen, die in diesem Ordner übersprungen werden |
+| `RecIcon` / `ResetIcon` / `RefreshIcon` / `MenuIcon` / `AgeIcon` / `BackIcon` / `AutoRefreshIcon` / `SortResetIcon` / `LostIcon` / `FallbackIcon` / `DeadPathIcon` | Icon-Überschreibungen pro Eintrag, alle optional |
 
 ## Spalten-Referenz
 
 Alle sechs liegen in `RecentTab.ini`, standardmäßig aus, danach über
 TCs eigenes Shift+F1 "Configure custom columns" zum Panel hinzugefügt.
 
-| Spalte           | Einstellung          | Funktioniert auch in `! Lost`                                                                           |
-| ---------------- | -------------------- | ------------------------------------------------------------------------------------------------------- |
-| Geändert / Neu   | `ShowChangeType=1`   | Ja                                                                                                      |
-| Relative Zeit    | `ShowRelativeTime=1` | Ja                                                                                                      |
-| Quellordner      | `ShowSourceFolder=1` | Ja                                                                                                      |
-| Session-Nummer   | `ShowSession=1`      | Ja                                                                                                      |
-| Bereits geöffnet | `ShowOpened=1`       | Ja                                                                                                      |
-| Sperrstatus      | `ShowLocked=1`       | Nein - die Datei ist schon bekanntermaßen weg, ein Sperr-Check würde immer nur "Nicht gefunden" liefern |
+| Spalte | Einstellung | Funktioniert auch in `! Lost` |
+|---|---|---|
+| Geändert / Neu | `ShowChangeType=1` | Ja |
+| Relative Zeit | `ShowRelativeTime=1` | Ja |
+| Quellordner | `ShowSourceFolder=1` | Ja |
+| Session-Nummer | `ShowSession=1` | Ja |
+| Bereits geöffnet | `ShowOpened=1` | Ja |
+| Sperrstatus | `ShowLocked=1` | Nein - die Datei ist schon bekanntermaßen weg, ein Sperr-Check würde immer nur "Nicht gefunden" liefern |
 
 ## Voraussetzungen
 

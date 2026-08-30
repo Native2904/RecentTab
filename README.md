@@ -3,10 +3,8 @@
 A Total Commander WFX (File System) plugin that shows recently modified
 files as a virtual panel - similar to macOS Finder's "Recents" view.
 
-<img width="1918" height="871" alt="2026-08-19_194513" src="https://github.com/user-attachments/assets/a3b07277-50fc-4f7b-a5dd-58d3426f92c4" />
+![RecentTab screenshot](https://raw.githubusercontent.com/Native2904/RecentTab/401f106849b2704410123273c37a39fb2bbb4be2/2026-08-03_153508.png)
 
-
-[RecentTab Total Commander Forum](https://www.ghisler.ch/board/viewtopic.php?p=487769#p487769)
 ## What it can do
 
 Open `\\RecentTab\` in Total Commander and get a flat, chronological
@@ -42,6 +40,8 @@ At a glance:
 - **Custom icons** - every panel entry's icon is swappable
 - **Sort order reset** - one click undoes an accidental column-click
   sort
+- **Folder tree** - Alt+Enter on `! menu` shows how your watched
+  folders actually branch out, dead paths marked clearly
 
 This list grows as the plugin does - see Advanced configuration below
 for how each of these actually works, and Settings reference /
@@ -478,6 +478,34 @@ not separately. See `notes/lost-files/` for the fuller reasoning,
 including why a couple of more ambitious approaches (a live background
 watcher, reading the Recycle Bin) were considered and set aside.
 
+### Folder tree - see how your watched folders actually branch out
+
+Alt+Enter on `! menu` opens a small standalone window (same visual
+style as the search window - thin borders, its own theme, detached
+from TC's own look) showing every watched folder as a tree, built
+purely from the configured paths themselves, not from anything
+recorded yet.
+
+Folders that share a parent get grouped under it automatically, even
+if that parent isn't itself a watched folder - just a visual grouping,
+nothing extra tracked. A run of folders that each have exactly one
+child - no real branching along the way - collapses onto a single
+line rather than five or six indented levels that would carry no
+extra information; if files still exist directly in one of those
+in-between folders, that count stays visible right next to its name,
+not hidden by the collapsing.
+
+A watched folder whose path doesn't exist on disk anymore gets a
+distinct, deliberately eye-catching icon (a road barrier, not the same
+ghost used for individual lost files elsewhere - a whole missing
+configured folder is a different situation from one file disappearing).
+
+The window caps at roughly a standard Lister window's height (TC gives
+plugins no way to ask its actual size, so this is an approximation,
+not a real measurement) - anything taller scrolls with the mouse
+wheel. See `notes/folder-tree/` for the fuller reasoning, including why
+GDI+ specifically was needed for this one.
+
 ## Settings reference
 
 Every setting that exists, in one place - grouped the same way as
@@ -531,7 +559,7 @@ settings get one line added here, nothing else rewritten.
 | `Path` (inside `[Watched:Name]`) | The folder itself |
 | `Exclude` | Sub-paths to skip inside that folder |
 | `ExcludeExtensions` | Extensions to skip inside that folder |
-| `RecIcon` / `ResetIcon` / `RefreshIcon` / `MenuIcon` / `AgeIcon` / `BackIcon` / `AutoRefreshIcon` / `SortResetIcon` / `LostIcon` / `FallbackIcon` | Per-entry icon overrides, all optional |
+| `RecIcon` / `ResetIcon` / `RefreshIcon` / `MenuIcon` / `AgeIcon` / `BackIcon` / `AutoRefreshIcon` / `SortResetIcon` / `LostIcon` / `FallbackIcon` / `DeadPathIcon` | Per-entry icon overrides, all optional |
 
 ## Columns reference
 
