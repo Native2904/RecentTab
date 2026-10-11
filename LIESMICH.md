@@ -8,6 +8,7 @@ aus den Ordnern, die dich interessieren, gesammelt in einem virtuellen
 Panel.
 
 <img width="1919" height="1042" alt="2026-08-30_141524" src="https://github.com/user-attachments/assets/2fcde74a-3813-488a-ad76-cfe74cb341cb" />
+<img width="1888" height="794" alt="2026-10-11_154936" src="https://github.com/user-attachments/assets/ad9f91f3-5a98-4f0b-98d2-9959cc509137" />
 
 ## Was es kann
 
