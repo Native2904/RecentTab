@@ -1,11 +1,10 @@
 # RecentTab
 
-**English** · [Deutsch](LIESMICH.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [Dansk](README.da.md)
-
 A Total Commander WFX (File System) plugin that shows what you've been
 working on: recently modified and newly created files from the folders
 you care about, as one virtual panel.
 
+<img width="1887" height="868" alt="2026-11-19_122644" src="https://github.com/user-attachments/assets/b0b56b01-e161-432a-abfe-44b054de2ceb" />
 
 
 ## What it can do
@@ -49,6 +48,10 @@ At a glance:
   folders actually branch out, dead paths marked clearly
 - **Settings dialog** - `! menu` → `! Settings`: every option on tabs,
   no ini editing needed (but still possible)
+
+
+<img width="802" height="708" alt="2026-11-19_123457" src="https://github.com/user-attachments/assets/4f65231e-91f4-4a97-8e4c-e4fe7eff5f5a" />
+
 
 This list grows as the plugin does - see Advanced configuration below
 for how each of these actually works, and Settings reference /
@@ -410,6 +413,8 @@ looks:
 rather not have it available at all.
 
 ### The Alt+Enter dialog
+
+<img width="642" height="849" alt="2026-11-19_123358" src="https://github.com/user-attachments/assets/07348495-3168-4810-aa28-806c6f27d04b" />
 
 Opens a themed, read-only stats window from `! REC`, `! menu`, or any
 of the entries inside it: recording status with a live-ticking clock
