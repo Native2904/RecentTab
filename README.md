@@ -318,7 +318,6 @@ Shift+F1 "Configure custom columns":
 ;ShowLocked=0
 ```
 
-![SourceFolder, RelativeTime and Session columns in the panel](screenshots/extra-columns.png)
 
 **`ShowChangeType`** - the plugin already decides internally whether a
 file's *modification* or its *creation* is what actually justified
@@ -392,7 +391,6 @@ you've actually recorded, in your configured folders. No switching
 windows, no detour through another app - results land right back in
 `\\RecentTab\`, same as the normal list.
 
-![The search window](screenshots/search-window.png)
 
 Find it under `! menu` → `! Search`. A small window opens with
 two fields, **FROM** and **TO** - the input is more forgiving than it
